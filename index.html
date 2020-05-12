@@ -1,0 +1,48 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Velha Russa</title>
+
+  <style>
+    #game {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    #game .field {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      margin: 15px;
+    }
+
+    #game .field button {
+      border: 1px solid #999;
+      border-radius: 4px;
+      margin: 2px;
+      height: 40px;
+    }
+  </style>
+
+</head>
+<body>
+
+  <div id="game"></div>
+
+  <script src="./Velha-Russa.js"></script>
+  <script src="./render-screen.js"></script>
+
+  <script>
+    const game = createGame();
+
+    game.initializeState();
+
+    const screen = createScreen(document)
+
+    screen.initializeScreen(game.state)
+
+
+  </script>
+  
+</body>
+</html>
