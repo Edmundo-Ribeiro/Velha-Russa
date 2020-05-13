@@ -5,46 +5,44 @@ function createScreen(document) {
   function render(gameState) {
     let button;
 
-    for (let [fieldKey, field] of Object.entries(gameState.fields)) {
-      for (let [littleSquareKey, littleSquare] of Object.entries(field)) {
-        if (littleSquareKey === 'conqueredBy')
-          continue
-
-        button = document.getElementById(`${fieldKey}_${littleSquareKey}`)
-
-        button.innerText = littleSquare
-      }
-    }
+    gameState.boards.forEach( (board, boardIndex) => {
+      board.fields.forEach( (field, fieldIndex) => {
+        if(field){
+          const [player] = gameState.players.filter( ({ id }) => id === field);
+          button = document.getElementById(`${boardIndex}_${fieldIndex}`);
+          button.innerText = player.symbol
+        }
+      });
+    });
 
     requestAnimationFrame(() => render(gameState))
   }
 
   function clicked(coordinates) {
-    // console.table(coordinates);
+    console.log(coordinates);
+    game.makeMove({player,position: coordinates});
   }
 
   function initialize(gameState) {
-    for (let [fieldKey, field] of Object.entries(gameState.fields)) {
+
+    gameState.boards.forEach( (board, boardIndex) => {
       const div = document.createElement('div');
-      div.classList = 'field'
-      div.id = fieldKey
+      div.classList = 'field';
+      div.id = boardIndex;
       
-      for (let [littleSquareKey, _] of Object.entries(field)) {
-        if (littleSquareKey === 'conqueredBy')
-          continue
-
+      board.fields.forEach( (field, fieldIndex) => {
         const button = document.createElement('button');
+        const coordinates = {boardIndex, fieldIndex}
 
-        const coordinates = {fieldKey, littleSquareKey}
-        button.onclick = () => clicked(coordinates)
-        button.id = `${fieldKey}_${littleSquareKey}`
+        button.id = `${boardIndex}_${fieldIndex}`
+        button.onclick = () => clicked(button.id)
         button.innerText = ''
         
         div.append(button);
-      }
+      });
 
       gameArea.append(div);
-    }
+    });
   }
 
   return {

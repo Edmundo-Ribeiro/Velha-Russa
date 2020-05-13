@@ -36,12 +36,12 @@
   <script>
     const game = createGame();
 
-    game.initializeState();
+    game.initialize();
 
     const player = {id: 'david beckham', symbol: 'X'}
+    game.state.players[0] = player;
 
     const screen = createScreen(document)
-
     screen.initialize(game.state)
 
     screen.render(game.state)

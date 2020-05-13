@@ -1,131 +1,142 @@
-function createGame() {
-  const state = {}
+/**
+ * interface State {
+ *  boards: Board[9];
+ *  players: Player[2];
+ *  currentPlayer: Player;
+ * }
+ * 
+ * interface Board {
+ *  fields: Array(9);
+ *  conqueredBy: string;
+ * }
+ * 
+ * interface Player {
+ *  id: string;
+ *  symbol: string;
+ * }
+ * 
+ * interface Move {
+ *  player: Player;
+ *  position: string;
+ * } 
+
+ * 
+ * 
+ * state: {
+ *  boards: [
+ *    {fields: [9], conqured},
+ *    {fields: [9], conqured},
+ *    {fields: [9], conqured},
+ *    {fields: [9], conqured},
+ *    {fields: [9], conqured},
+ *    {fields: [9], conqured},
+ *    {fields: [9], conqured},
+ *    {fields: [9], conqured},
+ *    {fields: [9], conqured},
+ *  ],
+ *  players: [
+ *    {id, symbol},
+ *    {id, symbol},
+ *  ],
+ *  currentPlayer: {id, symbol}
+ * }
+ * 
+ */
+
+const createGame = () => {
+  const state = {};
+
+  const initializeBoard = () => {
+    const fields = [];
+    const conqueredBy = null;
+
+    for (let i = 0; i < 9; i++){
+      fields.push(null);
+    }
+    return {fields, conqueredBy}
+  }
+
+  const initialize = () => {
+    state.boards = [];
+    for (let i = 0; i < 9; i++){
+      state.boards.push(initializeBoard());
+    }
+
+    state.players = [
+     { id: null, symbol: 'X' },
+     { id: null, symbol: 'O',}
+    ]
+
+    state.currentPlayer = null;
+  }
+
+  const selectRandomPlayer = (players) => {
+    return players[Math.round(Math.random())];
+  }
  
-  const initializedField = () => {
-    const field = {};
-    for (let index = 0; index < 9; index++){ 
-      field[index] = null;
+  const makeMove = ({player, position}) => {
+    const [boardIndex, fieldIndex] = position.split('_');
+    const board = state.boards[boardIndex];
+
+    board.fields[fieldIndex] = player.id;
+
+    const conqueredBoard = sequenceCompleted(board.fields);
+    console.log('conqueredBoard -->', conqueredBoard)
+    if (conqueredBoard.length) {
+      board.conqueredBy = player.id;
+
+      const conqueredStatus = state.boards.map(board => board.conqueredBy)
+      const wonGame = sequenceCompleted(conqueredStatus)
+      if (wonGame.length) {
+        console.log('wonGame -->', wonGame)
+      }
     }
+
+    // state.currentPlayer = 
+
+  }
+
+  const sequenceCompleted = (checkableArray) => {
+    let result = [];
+    const completedRow = checkRows(checkableArray);
+    if (completedRow != -1)
+      result.push({type: 'row', index: completedRow})
     
-    field.conqueredBy = null;
-    // field.info.conqueredBy = null;
+    const completedCol = checkColumns(checkableArray);
+    if (completedCol != -1)
+      result.push({type: 'column', index: completedCol})
     
-    return field;
-  }
-
-  const initializeState = () => {
-    state.fields = {}
-
-    for (let fieldIndex = 0; fieldIndex < 9; fieldIndex++){
-      state.fields[fieldIndex] = initializedField();
-    }
+    //diferente pois pode acontecer de completar duas diagonais ao mesmo tempo
+    const completedDialgonals = checkDiagonals(checkableArray);
+    if (completedDialgonals.length)
+      result = result.concat( completedDialgonals.map(diag => ({type: 'dialgonal', index: diag})) );
     
-    state.players = {
-      player1: {
-        id: null,
-        symbol: 'X',
-      },
-      player2: {
-        id: null,
-        symbol: 'O',
-      },
-    }
-
-    state.currentPlayer = state.players[`player${Math.round(Math.random()+1)}`];
-  }
-  
-  const validateMove = ({ playerId, position }) => {
-    if (state.currentPlayer !== playerId ) {
-      throw new Error('invalid');
-    }
+    return result;
   }
 
-  const makeMove = ({ player, position }) => {
-    // refatorar pra nomes melhores
-    const [fieldKey, littleSquareKey] = String(position).split('_')
-    const field = state.fields[fieldKey]
+  const checkRows = (array) => { 
+    for (let row = 0; row <= 6; row+=3)
+       if (array[row] && array[row] === array[row+1] && array[row] === array[row+2])
+        return row/3;
+    return -1;
+  }
+
+  const checkColumns = (array) => { 
+    for (let col = 0; col < 3; col++)
+       if (array[col] && array[col] === array[col+3] && array[col] === array[col+6])
+         return col;
+    return -1;
+  }
+
+  const checkDiagonals = (array) => { 
+    const diagonals = [];
+    if (array[4] && array[0] === array[4] && array[4] === array[8])
+      diagonals.push(0)
+    if (array[4] && array[2] === array[4] && array[4] === array[6])
+      diagonals.push(1)
     
-    state.fields[fieldKey][littleSquareKey] = player.symbol
-
-    const conquered = checkForConqueredField(field)
-
-    if (conquered) {
-      field.conqueredBy = player.id
-      const wintype = checkForGameWinner()
-    }
+    return diagonals;
   }
 
-  const checkForGameWinner = () => {
-    const game = {}
-
-    Object
-      .entries(state.fields)
-      .forEach(([key, value]) => 
-        game[key] = value.conqueredBy
-      )
-
-    const result = checkForConqueredField(game)
-    console.log(result)
-  }
-
-  // checkForCompletedField?
-  const checkForConqueredField = (field) => {
-    const column = checkColumns(field)
-    if (column > -1) {
-      return {type: 'column', column}
-    }
-
-    const row = checkRows(field)
-    if (row > -1) {
-      return {type: 'row', row}
-    }
-
-    const diagonal = checkDiagonals(field)
-    if (diagonal > -1) {
-      return {type: 'diagonal', diagonal}
-    }
-
-    return false
-  }
-
-  const checkColumns = (field) => {
-    const columns = [
-      field[0] === field[3] && field[3] === field[6] && field[3],
-      field[1] === field[4] && field[4] === field[7] && field[4],
-      field[2] === field[5] && field[5] === field[8] && field[5],
-    ]
-
-    const result = columns.findIndex(column => column)
-    
-    return result
-  }
-
-  const checkRows = (field) => {
-    const rows = [
-      field[0] === field[1] && field[1] === field[2] && field[1],
-      field[3] === field[4] && field[4] === field[5] && field[4],
-      field[6] === field[7] && field[7] === field[8] && field[7],
-    ]
-
-    const result = rows.findIndex(row => row)
-    
-    return result
-  }
-
-  const checkDiagonals = (field) => {
-    const diagonals = [
-      field[0] === field[4] && field[4] === field[8] && field[4],
-      field[2] === field[4] && field[4] === field[6] && field[4],
-    ]
-
-    const result = diagonals.findIndex(diagonal => diagonal)
-    
-    return result
-  }
-
-  return {
-    state,
-    initializeState,
-    makeMove,
-  }
+  return { state, initialize, makeMove, selectRandomPlayer}
 }
