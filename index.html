@@ -21,6 +21,7 @@
       border-radius: 4px;
       margin: 2px;
       height: 40px;
+      color: #444;
     }
   </style>
 
@@ -37,10 +38,13 @@
 
     game.initializeState();
 
+    const player = {id: 'david beckham', symbol: 'X'}
+
     const screen = createScreen(document)
 
-    screen.initializeScreen(game.state)
+    screen.initialize(game.state)
 
+    screen.render(game.state)
 
   </script>
   
