@@ -20,8 +20,10 @@ function createScreen(document) {
 
   function clicked(coordinates) {
     console.log(coordinates);
-    game.makeMove({player,position: coordinates});
-  }
+    if(coordinates.boardIndex == game.state.currentBoard){
+      game.makeMove(`${coordinates.boardIndex}_${coordinates.fieldIndex}`);
+    }
+    }
 
   function initialize(gameState) {
 
@@ -35,7 +37,7 @@ function createScreen(document) {
         const coordinates = {boardIndex, fieldIndex}
 
         button.id = `${boardIndex}_${fieldIndex}`
-        button.onclick = () => clicked(button.id)
+        button.onclick = () => clicked(coordinates)
         button.innerText = ''
         
         div.append(button);

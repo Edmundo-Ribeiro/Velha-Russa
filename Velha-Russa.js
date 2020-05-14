@@ -3,6 +3,7 @@
  *  boards: Board[9];
  *  players: Player[2];
  *  currentPlayer: Player;
+ *  currentBoard: Board;
  * }
  * 
  * interface Board {
@@ -38,7 +39,11 @@
  *    {id, symbol},
  *    {id, symbol},
  *  ],
- *  currentPlayer: {id, symbol}
+ *  currentPlayer: {id, symbol},
+ *  currentBoardIndex: number,
+ *  subscriptions: {
+ *    eventName: Array[]
+ *  },
  * }
  * 
  */
@@ -56,7 +61,8 @@ const createGame = () => {
     return {fields, conqueredBy}
   }
 
-  const initialize = () => {
+  const setUp = () => {
+    state.subscriptions = {};
     state.boards = [];
     for (let i = 0; i < 9; i++){
       state.boards.push(initializeBoard());
@@ -70,14 +76,34 @@ const createGame = () => {
     state.currentPlayer = null;
   }
 
-  const selectRandomPlayer = (players) => {
-    return players[Math.round(Math.random())];
+  const selectRandomPlayer = () => {
+    return state.players[Math.round(Math.random())];
   }
- 
-  const makeMove = ({player, position}) => {
+  
+  const subscribe = ({event, observer, receiveFunction}) => {
+    if(state.subscriptions[event]) {
+      state.subscriptions[event].push({observer, receiveFunction});
+    }
+    else {
+      state.subscriptions[event] = [{observer, receiveFunction}];
+    }
+  }
+  const unsubscribe = ({event, observerToRemove}) => {
+    const observersList = state.subscriptions[event];
+    console.log(observersList);
+    state.subscriptions[event] = observersList.filter(({observer}) => observer.name !== observerToRemove.name )
+  }
+  const notify = (event) => {
+    const subscribers = state.subscriptions[event];
+    subscribers.forEach( ({observer, receiveFunction}) => {
+      observer[receiveFunction]()} );
+  }
+
+  const makeMove = (position) => {
+
     const [boardIndex, fieldIndex] = position.split('_');
     const board = state.boards[boardIndex];
-
+    const player = state.currentPlayer;
     board.fields[fieldIndex] = player.id;
 
     const conqueredBoard = sequenceCompleted(board.fields);
@@ -92,8 +118,13 @@ const createGame = () => {
       }
     }
 
-    // state.currentPlayer = 
+    changePlayer();
+    state.currentBoard = fieldIndex; 
 
+  }
+  const changePlayer = () => {
+    const currentPlayerID = state.currentPlayer.id;
+    [state.currentPlayer] = state.players.filter(player => player.id !== currentPlayerID);
   }
 
   const sequenceCompleted = (checkableArray) => {
@@ -112,6 +143,10 @@ const createGame = () => {
       result = result.concat( completedDialgonals.map(diag => ({type: 'dialgonal', index: diag})) );
     
     return result;
+  }
+
+  const setPlayer = (number, playerInfo) => {
+    state.players[number] = playerInfo;
   }
 
   const checkRows = (array) => { 
@@ -138,5 +173,7 @@ const createGame = () => {
     return diagonals;
   }
 
-  return { state, initialize, makeMove, selectRandomPlayer}
+
+
+  return {subscribe, notify, unsubscribe,selectRandomPlayer, setPlayer,changePlayer,state, setUp, makeMove, selectRandomPlayer}
 }

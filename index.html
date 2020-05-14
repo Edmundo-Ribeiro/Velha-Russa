@@ -36,10 +36,12 @@
   <script>
     const game = createGame();
 
-    game.initialize();
-
-    const player = {id: 'david beckham', symbol: 'X'}
-    game.state.players[0] = player;
+    game.setUp();
+    const player0 = {id: 'david beckham', symbol: 'X'}
+    const player1 = {id: 'yudi beckham', symbol: 'Y'}
+    game.setPlayer(0,player0);
+    game.setPlayer(1,player1);
+    game.state.currentPlayer =  game.selectRandomPlayer();
 
     const screen = createScreen(document)
     screen.initialize(game.state)
