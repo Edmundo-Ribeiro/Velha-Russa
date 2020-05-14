@@ -51,7 +51,7 @@
 const createGame = () => {
   const state = {};
 
-  const initializeBoard = () => {
+  const getInitializedBoard = () => {
     const fields = [];
     const conqueredBy = null;
 
@@ -65,7 +65,7 @@ const createGame = () => {
     state.subscriptions = {};
     state.boards = [];
     for (let i = 0; i < 9; i++){
-      state.boards.push(initializeBoard());
+      state.boards.push(getInitializedBoard());
     }
 
     state.players = [
@@ -80,55 +80,61 @@ const createGame = () => {
     return state.players[Math.round(Math.random())];
   }
   
-  const subscribe = ({event, observer, receiveFunction}) => {
-    if(state.subscriptions[event]) {
-      state.subscriptions[event].push({observer, receiveFunction});
+  const subscribe = ({topic, observer, receiveFunction}) => {
+    if(state.subscriptions[topic]) {
+      state.subscriptions[topic].push({observer, receiveFunction});
     }
     else {
-      state.subscriptions[event] = [{observer, receiveFunction}];
+      state.subscriptions[topic] = [{observer, receiveFunction}];
     }
   }
-  const unsubscribe = ({event, observerToRemove}) => {
-    const observersList = state.subscriptions[event];
+
+  const unsubscribe = ({ topic, observerToRemove }) => {
+    const observersList = state.subscriptions[topic];
     console.log(observersList);
-    state.subscriptions[event] = observersList.filter(({observer}) => observer.name !== observerToRemove.name )
+    state.subscriptions[topic] = observersList.filter(
+      ({observer}) => observer.name !== observerToRemove.name
+    )
   }
+
   const notify = (event) => {
     const subscribers = state.subscriptions[event];
-    subscribers.forEach( ({observer, receiveFunction}) => {
+    subscribers.forEach(({ observer, receiveFunction }) => {
       observer[receiveFunction]()} );
   }
 
   const makeMove = (position) => {
-
     const [boardIndex, fieldIndex] = position.split('_');
     const board = state.boards[boardIndex];
     const player = state.currentPlayer;
+
     board.fields[fieldIndex] = player.id;
 
-    const conqueredBoard = sequenceCompleted(board.fields);
-    console.log('conqueredBoard -->', conqueredBoard)
-    if (conqueredBoard.length) {
+    const completedSequencesInFields = getCompletedSequences(board.fields);
+    console.log('conqueredBoard -->', completedSequencesInFields)
+    if (completedSequencesInFields.length) {
       board.conqueredBy = player.id;
 
-      const conqueredStatus = state.boards.map(board => board.conqueredBy)
-      const wonGame = sequenceCompleted(conqueredStatus)
-      if (wonGame.length) {
-        console.log('wonGame -->', wonGame)
+      const reshapedBoards = state.boards.map(board => board.conqueredBy)
+      const completedSequencesInBoards = getCompletedSequences(reshapedBoards)
+      if (completedSequencesInBoards.length) {
+        // finishGame()
+        console.log('wonGame -->', completedSequencesInBoards)
       }
     }
 
     changePlayer();
     state.currentBoard = fieldIndex; 
-
   }
+
   const changePlayer = () => {
     const currentPlayerID = state.currentPlayer.id;
     [state.currentPlayer] = state.players.filter(player => player.id !== currentPlayerID);
   }
 
-  const sequenceCompleted = (checkableArray) => {
+  const getCompletedSequences = (checkableArray) => {
     let result = [];
+
     const completedRow = checkRows(checkableArray);
     if (completedRow != -1)
       result.push({type: 'row', index: completedRow})
@@ -145,26 +151,28 @@ const createGame = () => {
     return result;
   }
 
+  // acho que isso vai dar errado em TS. number não é uma palavra reservada pra tipagem?
   const setPlayer = (number, playerInfo) => {
     state.players[number] = playerInfo;
   }
 
   const checkRows = (array) => { 
-    for (let row = 0; row <= 6; row+=3)
-       if (array[row] && array[row] === array[row+1] && array[row] === array[row+2])
-        return row/3;
+    for (let row = 0; row <= 6; row += 3)
+      if (array[row] && array[row] === array[row+1] && array[row] === array[row+2])
+        return row/3; 
     return -1;
   }
 
   const checkColumns = (array) => { 
-    for (let col = 0; col < 3; col++)
-       if (array[col] && array[col] === array[col+3] && array[col] === array[col+6])
-         return col;
+    for (let column = 0; column < 3; column++)
+      if (array[column] && array[column] === array[column+3] && array[column] === array[column+6])
+        return column;
     return -1;
   }
 
   const checkDiagonals = (array) => { 
     const diagonals = [];
+
     if (array[4] && array[0] === array[4] && array[4] === array[8])
       diagonals.push(0)
     if (array[4] && array[2] === array[4] && array[4] === array[6])
@@ -173,7 +181,16 @@ const createGame = () => {
     return diagonals;
   }
 
-
-
-  return {subscribe, notify, unsubscribe,selectRandomPlayer, setPlayer,changePlayer,state, setUp, makeMove, selectRandomPlayer}
+  return {
+    state, 
+    subscribe, 
+    notify, 
+    unsubscribe,
+    selectRandomPlayer, 
+    setPlayer,
+    changePlayer,
+    setUp, 
+    makeMove, 
+    selectRandomPlayer
+  }
 }
