@@ -3,9 +3,14 @@ function createScreen(document) {
   const gameArea = document.getElementById('game')
 
   function render(gameState) {
+    const {currentBoard, boards} = gameState;
     let button;
-
-    gameState.boards.forEach( (board, boardIndex) => {
+    let div;
+    console.log('redering...');
+    boards.forEach( (board, boardIndex) => {
+      div =  document.getElementById(`${boardIndex}`);
+      div.classList.remove('currentBoard');
+     
       board.fields.forEach( (field, fieldIndex) => {
         if(field){
           const [player] = gameState.players.filter( ({ id }) => id === field);
@@ -13,17 +18,19 @@ function createScreen(document) {
           button.innerText = player.symbol
         }
       });
+      
     });
-
-    requestAnimationFrame(() => render(gameState))
+    div =  document.getElementById(`${currentBoard}`);
+    div.classList.add('currentBoard')
+    
   }
 
   function clicked(coordinates) {
     console.log(coordinates);
-    if(coordinates.boardIndex == game.state.currentBoard){
+    if(coordinates.boardIndex == game.state.currentBoard ){
       game.makeMove(`${coordinates.boardIndex}_${coordinates.fieldIndex}`);
     }
-    }
+  }
 
   function initialize(gameState) {
 

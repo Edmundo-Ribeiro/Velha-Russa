@@ -48,8 +48,18 @@
  * 
  */
 
+/**
+ * Topics / topicData
+ * 'newMove' / 'coordenada, simbolo'
+ * 'conquererBoard' / 'boardIndex, type, simbolo'
+ * 'won' / 'type, simbolo' 
+ */
+
+
 const createGame = () => {
   const state = {};
+  const observer = createObserver('game');
+  observer.addTopics('newMove', 'conqueredBoard');
 
   const getInitializedBoard = () => {
     const fields = [];
@@ -68,39 +78,12 @@ const createGame = () => {
       state.boards.push(getInitializedBoard());
     }
 
-    state.players = [
-     { id: null, symbol: 'X' },
-     { id: null, symbol: 'O',}
-    ]
-
+    state.players = []
     state.currentPlayer = null;
   }
 
   const selectRandomPlayer = () => {
     return state.players[Math.round(Math.random())];
-  }
-  
-  const subscribe = ({topic, observer, receiveFunction}) => {
-    if(state.subscriptions[topic]) {
-      state.subscriptions[topic].push({observer, receiveFunction});
-    }
-    else {
-      state.subscriptions[topic] = [{observer, receiveFunction}];
-    }
-  }
-
-  const unsubscribe = ({ topic, observerToRemove }) => {
-    const observersList = state.subscriptions[topic];
-    console.log(observersList);
-    state.subscriptions[topic] = observersList.filter(
-      ({observer}) => observer.name !== observerToRemove.name
-    )
-  }
-
-  const notify = (event) => {
-    const subscribers = state.subscriptions[event];
-    subscribers.forEach(({ observer, receiveFunction }) => {
-      observer[receiveFunction]()} );
   }
 
   const makeMove = (position) => {
@@ -125,6 +108,8 @@ const createGame = () => {
 
     changePlayer();
     state.currentBoard = fieldIndex; 
+
+    observer.notify({topic: 'newMove', topicData: state} )
   }
 
   const changePlayer = () => {
@@ -151,9 +136,8 @@ const createGame = () => {
     return result;
   }
 
-  // acho que isso vai dar errado em TS. number não é uma palavra reservada pra tipagem?
-  const setPlayer = (number, playerInfo) => {
-    state.players[number] = playerInfo;
+  const setPlayer = (playerNumber, playerInfo) => {
+    state.players[playerNumber] = playerInfo;
   }
 
   const checkRows = (array) => { 
@@ -183,9 +167,7 @@ const createGame = () => {
 
   return {
     state, 
-    subscribe, 
-    notify, 
-    unsubscribe,
+    observer,
     selectRandomPlayer, 
     setPlayer,
     changePlayer,

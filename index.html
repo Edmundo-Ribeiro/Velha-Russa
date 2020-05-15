@@ -8,21 +8,43 @@
     #game {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
+      background: #f1f1f1;
     }
 
     #game .field {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       margin: 15px;
+      border-radius: 8px;
     }
 
     #game .field button {
+      transition: transform 0.3s;
       border: 1px solid #999;
       border-radius: 4px;
       margin: 2px;
       height: 40px;
       color: #444;
     }
+
+
+
+
+
+
+/* só pra ajudar ficar mais agradavel sla */
+    #game .field {
+      transition: transform 0.5s;
+    }
+    .currentBoard button:hover {
+      transform: scale(1.06);
+      background: #aaa;
+    }
+    .currentBoard {
+      transform: scale(1.1);
+      border: 1px solid #b90d5d;
+    }
+
   </style>
 
 </head>
@@ -30,13 +52,16 @@
 
   <div id="game"></div>
 
+  <script src="./observer.js"></script>
   <script src="./Velha-Russa.js"></script>
   <script src="./render-screen.js"></script>
 
   <script>
     const game = createGame();
-
     game.setUp();
+
+    game.state.currentBoard = 4
+
     const player0 = {id: 'david beckham', symbol: 'X'}
     const player1 = {id: 'yudi beckham', symbol: 'Y'}
     game.setPlayer(0,player0);
@@ -46,7 +71,12 @@
     const screen = createScreen(document)
     screen.initialize(game.state)
 
-    screen.render(game.state)
+    game.observer.subscribe({
+      topic: 'newMove',
+      observerFunction: screen.render
+    });
+
+    screen.render(game.state);
 
   </script>
   
