@@ -20,7 +20,6 @@
  *  player: Player;
  *  position: string;
  * } 
-
  * 
  * 
  * state: {
@@ -55,11 +54,12 @@
  * 'won' / 'type, simbolo' 
  */
 
+import createObserver from './observer.js';
 
 const createGame = () => {
   const state = {};
-  const observer = createObserver('game');
-  observer.addTopics('newMove', 'conqueredBoard');
+  const subject = createObserver('game');
+  subject.addTopics('newMove', 'conqueredBoard');
 
   const getInitializedBoard = () => {
     const fields = [];
@@ -68,12 +68,14 @@ const createGame = () => {
     for (let i = 0; i < 9; i++){
       fields.push(null);
     }
+    
     return {fields, conqueredBy}
   }
 
   const setUp = () => {
     state.subscriptions = {};
     state.boards = [];
+
     for (let i = 0; i < 9; i++){
       state.boards.push(getInitializedBoard());
     }
@@ -87,7 +89,7 @@ const createGame = () => {
   }
 
   const makeMove = (position) => {
-    const [boardIndex, fieldIndex] = position.split('_');
+    const [boardIndex, fieldIndex] = position.split('_').map(str => parseInt(str));
     const board = state.boards[boardIndex];
     const player = state.currentPlayer;
 
@@ -107,9 +109,48 @@ const createGame = () => {
     }
 
     changePlayer();
-    state.currentBoard = fieldIndex; 
+    state.currentBoardIndex = fieldIndex;
 
-    observer.notify({topic: 'newMove', topicData: state} )
+    subject.notify({ topic: 'newMove', topicData: state })
+  }
+
+  const isValidMove = ({playerId, position}) => {
+    const [boardIndex, fieldIndex] = position.split('_').map(str => parseInt(str));
+    const board = state.boards[boardIndex];
+    
+    // player
+    if (playerId !== state.currentPlayer.id) {
+      // implementar: notificar jogador que não é vez dele
+      return false
+    } 
+    // se campo tá ativo, "é válido"
+   
+    if (state.currentBoardIndex !== boardIndex) {
+      return false;
+    }
+
+    // se o campo não consquistado
+    if (board.conqueredBy) {
+      return false;
+    }
+
+    // quadrado não tá marcado
+    if (board.fields[fieldIndex]) {
+      return false;
+    }
+
+    return true;
+  }
+
+  // 'a_b'
+  const executeTurn = (position) => {
+    const playerId = state.currentPlayer.id; // de onde pegar o player ID???
+    
+    if (isValidMove({playerId, position})) {
+      makeMove(position) //--{notify}
+      // checkThings()
+      // changePlayer() 
+    }
   }
 
   const changePlayer = () => {
@@ -166,13 +207,17 @@ const createGame = () => {
   }
 
   return {
+    isValidMove,
     state, 
-    observer,
+    subject,
     selectRandomPlayer, 
     setPlayer,
     changePlayer,
     setUp, 
     makeMove, 
+    executeTurn,
     selectRandomPlayer
   }
 }
+
+export default createGame;

@@ -1,35 +1,41 @@
-/** @param {Document} document */
-function createScreen(document) {
-  const gameArea = document.getElementById('game')
 
+import createObserver from './observer.js';
+
+
+/** @param {Document} document */
+function createRenderer(document) {
+  const gameArea = document.getElementById('game')
+  const subject = createObserver('screenRenderer');
+
+  subject.addTopics('click');
+  
   function render(gameState) {
-    const {currentBoard, boards} = gameState;
+    const {currentBoardIndex, boards} = gameState;
     let button;
     let div;
-    console.log('redering...');
+    console.log('redering...', currentBoardIndex);
+
     boards.forEach( (board, boardIndex) => {
       div =  document.getElementById(`${boardIndex}`);
       div.classList.remove('currentBoard');
      
       board.fields.forEach( (field, fieldIndex) => {
-        if(field){
+        if (field) {
           const [player] = gameState.players.filter( ({ id }) => id === field);
           button = document.getElementById(`${boardIndex}_${fieldIndex}`);
           button.innerText = player.symbol
         }
       });
-      
     });
-    div =  document.getElementById(`${currentBoard}`);
+
+    div = document.getElementById(`${currentBoardIndex}`);
     div.classList.add('currentBoard')
-    
   }
 
   function clicked(coordinates) {
     console.log(coordinates);
-    if(coordinates.boardIndex == game.state.currentBoard ){
-      game.makeMove(`${coordinates.boardIndex}_${coordinates.fieldIndex}`);
-    }
+    const position =`${coordinates.boardIndex}_${coordinates.fieldIndex}` 
+    subject.notify({topic: 'click', topicData: position })
   }
 
   function initialize(gameState) {
@@ -58,5 +64,8 @@ function createScreen(document) {
     gameArea,
     initialize,
     render,
+    subject,
   }
 }
+
+export default createRenderer;

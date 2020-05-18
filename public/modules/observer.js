@@ -1,5 +1,6 @@
 const createObserver = (name) => {
   const subscriptions = {};
+
   const addTopics = (...topics) => {
     topics.forEach( (topic) => {
       if( ! subscriptions[topic] ) {
@@ -52,3 +53,5 @@ const createObserver = (name) => {
     notify
   };
 }
+
+export default createObserver;

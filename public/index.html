@@ -51,34 +51,8 @@
 <body>
 
   <div id="game"></div>
-
-  <script src="./observer.js"></script>
-  <script src="./Velha-Russa.js"></script>
-  <script src="./render-screen.js"></script>
-
-  <script>
-    const game = createGame();
-    game.setUp();
-
-    game.state.currentBoard = 4
-
-    const player0 = {id: 'david beckham', symbol: 'X'}
-    const player1 = {id: 'yudi beckham', symbol: 'Y'}
-    game.setPlayer(0,player0);
-    game.setPlayer(1,player1);
-    game.state.currentPlayer =  game.selectRandomPlayer();
-
-    const screen = createScreen(document)
-    screen.initialize(game.state)
-
-    game.observer.subscribe({
-      topic: 'newMove',
-      observerFunction: screen.render
-    });
-
-    screen.render(game.state);
-
-  </script>
+  
+  <script type="module" src="./main.js"></script>
   
 </body>
 </html>
