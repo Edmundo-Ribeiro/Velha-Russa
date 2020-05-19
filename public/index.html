@@ -5,34 +5,53 @@
   <title>Velha Russa</title>
 
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      margin: 30px auto;
+      /* temos que pesquisar mais sobre responsividade */
+      max-width: 1200px;
+    }
+
+    h1 {
+      margin: 0;
+      text-align: center;
+    }
+
     #game {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       background: #f1f1f1;
+      border-radius: 4px;
+      width: fit-content;
+      margin: 30px auto;
     }
 
     #game .field {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      margin: 15px;
+      margin: 10px;
       border-radius: 8px;
+      transition: transform 0.5s;
+      width: fit-content;
     }
 
     #game .field button {
-      transition: transform 0.3s;
-      border: 1px solid #999;
-      border-radius: 4px;
-      margin: 2px;
-      height: 40px;
-      color: #444;
-      font-weight: bold;
-      font-size: 32px;
       outline: 0;
-    }
+      transition: transform 0.3s;
+      border-radius: 4px;
+      margin: 7px;
+      font-size: 32px;
+      border: 1px solid #ddd;
+      border: 0;
+      font-weight: bold;
+      color: #444;
 
-  /* só pra ajudar ficar mais agradavel sla */
-    #game .field {
-      transition: transform 0.5s;
+      height: 40px;
+      width: 40px;
     }
 
     .currentBoard {
@@ -41,17 +60,22 @@
     }
 
     .currentBoard button:hover {
-      transform: scale(1.06);
+      /* Quando a janela é diminuida a "animação" de scale fica
+       cortada por falta de espaço. Aumentar a margem do botão
+       suaviza o problema
+       */
+      transform: scale(1.04);
       background: #cecece;
     }
   </style>
 
 </head>
 <body>
-
-  <div id="game"></div>
+  <div class="container">
+    <h1>Velha RussA</h1>
+    <div id="game"></div>
+  </div>
   
   <script type="module" src="./main.js"></script>
-  
 </body>
 </html>
