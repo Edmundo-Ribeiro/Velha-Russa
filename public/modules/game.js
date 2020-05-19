@@ -96,7 +96,7 @@ const createGame = () => {
     board.fields[fieldIndex] = player.id;
 
     const completedSequencesInFields = getCompletedSequences(board.fields);
-    console.log('conqueredBoard -->', completedSequencesInFields)
+    // console.log('conqueredBoard -->', completedSequencesInFields)
     if (completedSequencesInFields.length) {
       board.conqueredBy = player.id;
 
@@ -207,9 +207,9 @@ const createGame = () => {
   }
 
   return {
-    isValidMove,
     state, 
     subject,
+    isValidMove,
     selectRandomPlayer, 
     setPlayer,
     changePlayer,
