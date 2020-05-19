@@ -6,8 +6,9 @@ const renderer = createRenderer(document)
 
 game.setUp();
 
-const player0 = {id: 'david beckham', symbol: 'X'}
-const player1 = {id: 'yudi beckham', symbol: 'Y'}
+
+const player0 = {id: 'player0', symbol: 'X'}
+const player1 = {id: 'player1', symbol: 'Y'}
 
 game.state.currentBoardIndex = 4 // como definir que a partida vai começar? 
 

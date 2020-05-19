@@ -24,6 +24,7 @@ function createRenderer(document) {
           const [player] = gameState.players.filter( ({ id }) => id === field);
           button = document.getElementById(`${boardIndex}_${fieldIndex}`);
           button.innerText = player.symbol
+          button.classList = player.id
         }
       });
     });
