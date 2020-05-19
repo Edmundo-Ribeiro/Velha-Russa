@@ -9,31 +9,46 @@ function createRenderer(document) {
 
   subject.addTopics('click');
   
+
   function render(gameState) {
     const {currentBoardIndex, boards} = gameState;
     let button;
     let div;
-    console.log('redering...', currentBoardIndex);
-
+    console.log('redering...');
+    
+    
     boards.forEach( (board, boardIndex) => {
-      div =  document.getElementById(`${boardIndex}`);
-      div.classList.remove('currentBoard');
-     
+      div = document.getElementById(`${boardIndex}`);
+
+      boardIndex === currentBoardIndex 
+        ? div.classList.add('currentBoard') 
+        : div.classList.remove('currentBoard');
+      
       board.fields.forEach( (field, fieldIndex) => {
+        button = document.getElementById(`${boardIndex}_${fieldIndex}`);
         if (field) {
           const [player] = gameState.players.filter( ({ id }) => id === field);
-          button = document.getElementById(`${boardIndex}_${fieldIndex}`);
           button.innerText = player.symbol
+          button.classList.remove('avaliable');
+        }
+        else if (boardIndex === currentBoardIndex && !board.conqueredBy) {
+          button.classList.add('avaliable');
+        }
+        else {
+          button.classList.remove('avaliable');
         }
       });
+
+      if (board.conqueredBy) {
+        div.classList.add('conquered');
+      }
+
     });
 
-    div = document.getElementById(`${currentBoardIndex}`);
-    div.classList.add('currentBoard')
   }
 
   function clicked(coordinates) {
-    console.log(coordinates);
+    console.log('You clicked on:', coordinates);
     const position =`${coordinates.boardIndex}_${coordinates.fieldIndex}` 
     subject.notify({topic: 'click', topicData: position })
   }
@@ -61,7 +76,6 @@ function createRenderer(document) {
   }
 
   return {
-    gameArea,
     initialize,
     render,
     subject,

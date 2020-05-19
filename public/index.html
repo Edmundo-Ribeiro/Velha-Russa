@@ -5,6 +5,11 @@
   <title>Velha Russa</title>
 
   <style>
+    button {
+      border: none;
+      cursor: pointer;
+      outline: none;
+    }
     #game {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -29,14 +34,11 @@
 
 
 
-
-
-
 /* só pra ajudar ficar mais agradavel sla */
     #game .field {
       transition: transform 0.5s;
     }
-    .currentBoard button:hover {
+    .currentBoard button.avaliable:hover {
       transform: scale(1.06);
       background: #aaa;
     }
@@ -45,13 +47,26 @@
       border: 1px solid #b90d5d;
     }
 
+    #game .conquered  button{
+      background:  #aaa ;
+      color: #333;
+      
+      border: 1px solid #000;
+    }
+
+    #game button.avaliable {
+      border: 1px solid blue;
+    }
+
+
+
   </style>
 
 </head>
 <body>
 
   <div id="game"></div>
-  
+
   <script type="module" src="./main.js"></script>
   
 </body>
