@@ -26,11 +26,11 @@ const createObserver = (name) => {
   }
 
   const subscribe = ({topic, observerFunction}) => {
-    if (isTopic) {
+    if (isTopic(topic)) {
       subscriptions[topic].push(observerFunction);
     }
     else {
-      console.log(`${topic} is not an avaliable topic of ${name}`)
+      console.error(`The topic { ${topic} } is not an avaliable topic of ${name}`)
     }
   }
 
