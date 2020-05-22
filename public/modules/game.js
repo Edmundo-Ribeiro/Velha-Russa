@@ -58,8 +58,11 @@ import createObserver from './observer.js';
 
 const createGame = () => {
   const state = {};
+  state.startedGame = false;
+  state.hasToChooseBoard = true;
+
   const subject = createObserver('game');
-  subject.addTopics('newMove', 'conqueredBoard');
+  subject.addTopics('newMove', 'conqueredBoard', 'hasToChooseBoard', 'endGame');
 
   const getInitializedBoard = () => {
     const fields = [];
@@ -89,7 +92,7 @@ const createGame = () => {
   }
 
   const makeMove = (position) => {
-    const [boardIndex, fieldIndex] = position.split('_').map(str => parseInt(str));
+    const {boardIndex, fieldIndex} = position;
     const board = state.boards[boardIndex];
     const player = state.currentPlayer;
 
@@ -105,6 +108,7 @@ const createGame = () => {
       if (completedSequencesInBoards.length) {
         // finishGame()
         console.log('wonGame -->', completedSequencesInBoards)
+        subject.notify({topic: 'endGame', topicData: {player, result: 'won'}})
       }
     }
 
@@ -115,7 +119,7 @@ const createGame = () => {
   }
 
   const isValidMove = ({playerId, position}) => {
-    const [boardIndex, fieldIndex] = position.split('_').map(str => parseInt(str));
+    const {boardIndex, fieldIndex} = position;
     const board = state.boards[boardIndex];
     
     // player
@@ -142,15 +146,48 @@ const createGame = () => {
     return true;
   }
 
+
   // 'a_b'
-  const executeTurn = (position) => {
+  const executeTurn = (position_string) => {
     const playerId = state.currentPlayer.id; // de onde pegar o player ID???
-    
+    const [boardIndex, fieldIndex] = position_string.split('_').map(str => parseInt(str));
+    const position = { boardIndex, fieldIndex };
+
+    console.log(position, state.currentBoardIndex)
+
+    //se o jogo não comecou qualquer campo é valido para se tornar o campo atual
+    if (!state.startedGame) {
+      state.currentBoardIndex = boardIndex;
+      state.startedGame = true;
+    }
+
+    // se o player esta na situação em que deve escolher um campo pra jogar
+    // verifique se ele está escolhendo um campo disponivel
+    // se sim pode setar esse campo como o atual  
+    if (state.hasToChooseBoard) {
+      state.hasToChooseBoard = !! state.boards[boardIndex].conqueredBy;
+      state.currentBoardIndex = state.hasToChooseBoard ? null : boardIndex;
+    }
+
     if (isValidMove({playerId, position})) {
+
       makeMove(position) //--{notify}
-      // checkThings()
+
+
+      //colocar isso aqui na parte do checkThings eu acho
+      const furuteBoard = state.boards[fieldIndex];
+      if (furuteBoard.conqueredBy) {
+        state.hasToChooseBoard = true;
+        console.log('has to choose board:', state.hasToChooseBoard);
+        state.currentBoardIndex = null;
+        subject.notify({topic: 'hasToChooseBoard', topicData: state});
+      }
+
+      // checkThings() //-lembrar de checar se o proximo campo que vai ser jogado já foi conquisado/empatado. Nesse caso o currentFieldIndex vira nulo e o jogador pode escolher qualquer campo
       // changePlayer() 
     }
+    
+   
   }
 
   const changePlayer = () => {
