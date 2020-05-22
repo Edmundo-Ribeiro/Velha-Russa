@@ -9,13 +9,12 @@ function createRenderer(document) {
 
   subject.addTopics('click');
   
-
+  //refatorar totalmente essa função!
   function render(gameState) {
-    const {currentBoardIndex, boards} = gameState;
+    const {currentBoardIndex, boards, hasToChooseBoard} = gameState;
     let button;
     let div;
     console.log('redering...');
-    
     
     boards.forEach( (board, boardIndex) => {
       div = document.getElementById(`${boardIndex}`);
@@ -24,6 +23,10 @@ function createRenderer(document) {
         ? div.classList.add('currentBoard') 
         : div.classList.remove('currentBoard');
       
+      if (hasToChooseBoard && !board.conqueredBy) {
+        div.classList.add('currentBoard');
+      }
+
       board.fields.forEach( (field, fieldIndex) => {
         button = document.getElementById(`${boardIndex}_${fieldIndex}`);
         if (field) {
@@ -31,7 +34,7 @@ function createRenderer(document) {
           button.innerText = player.symbol
           button.classList.remove('avaliable');
         }
-        else if (boardIndex === currentBoardIndex && !board.conqueredBy) {
+        else if ((boardIndex === currentBoardIndex || hasToChooseBoard) && !board.conqueredBy ) {
           button.classList.add('avaliable');
         }
         else {
@@ -45,6 +48,15 @@ function createRenderer(document) {
 
     });
 
+  }
+
+  function endedGame({player, result}) {
+    if (result === 'won'){
+      alert(`${player.symbol} won the game`);
+    }
+    else{
+      alert(`${player.symbol} tied the game`);
+    }
   }
 
   function clicked(coordinates) {
@@ -73,12 +85,15 @@ function createRenderer(document) {
 
       gameArea.append(div);
     });
+
+    console.log('Choose a field in any of the boards!');
   }
 
   return {
     initialize,
     render,
     subject,
+    endedGame
   }
 }
 
