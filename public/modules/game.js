@@ -95,20 +95,20 @@ const createGame = () => {
 
     board.fields[fieldIndex] = player.id;
 
-    const completedSequencesInFields = getCompletedSequences(board.fields);
-    // console.log('conqueredBoard -->', completedSequencesInFields)
-    if (completedSequencesInFields.length) {
-      board.conqueredBy = player.id;
+    // const completedSequencesInFields = getCompletedSequences(board.fields);
+    // // console.log('conqueredBoard -->', completedSequencesInFields)
+    // if (completedSequencesInFields.length) {
+    //   board.conqueredBy = player.id;
 
-      const reshapedBoards = state.boards.map(board => board.conqueredBy)
-      const completedSequencesInBoards = getCompletedSequences(reshapedBoards)
-      if (completedSequencesInBoards.length) {
-        // finishGame()
-        console.log('wonGame -->', completedSequencesInBoards)
-      }
-    }
+    //   const reshapedBoards = state.boards.map(board => board.conqueredBy)
+    //   const completedSequencesInBoards = getCompletedSequences(reshapedBoards)
+    //   if (completedSequencesInBoards.length) {
+    //     // finishGame()
+    //     console.log('wonGame -->', completedSequencesInBoards)
+    //   }
+    // }
 
-    changePlayer();
+    // changePlayer();
     state.currentBoardIndex = fieldIndex;
 
     subject.notify({ topic: 'newMove', topicData: state })
@@ -142,14 +142,36 @@ const createGame = () => {
     return true;
   }
 
-  // 'a_b'
+  const checkForCompletedSequencesAndGameWinner = (position) => {
+    const [boardIndex, _] = position.split('_').map(str => parseInt(str));
+    const board = state.boards[boardIndex];
+    const player = state.currentPlayer;
+
+    const completedSequencesInFields = getCompletedSequences(board.fields);
+    // console.log('conqueredBoard -->', completedSequencesInFields)
+    if (completedSequencesInFields.length) {
+      board.conqueredBy = player.id;
+
+      const reshapedBoards = state.boards.map(board => board.conqueredBy)
+      const completedSequencesInBoards = getCompletedSequences(reshapedBoards)
+      console.log('completedSequencesInBoards', completedSequencesInBoards)
+      if (completedSequencesInBoards.length) {
+        // finishGame()
+        console.log('wonGame -->', completedSequencesInBoards)
+      }
+    }
+  }
+
   const executeTurn = (position) => {
     const playerId = state.currentPlayer.id; // de onde pegar o player ID???
     
     if (isValidMove({playerId, position})) {
-      makeMove(position) //--{notify}
-      // checkThings()
-      // changePlayer() 
+      makeMove(position); 
+      // --{notify}
+      // não gosto de como essa função é usada. 
+      // A chamada dessa função não deixa claro tudo o que vai ser feito
+      checkForCompletedSequencesAndGameWinner(position);
+      changePlayer();
     }
   }
 

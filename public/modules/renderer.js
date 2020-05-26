@@ -38,6 +38,7 @@ function createRenderer(document) {
       const div = document.createElement('div');
       // é um field ou um board?
       div.classList = 'field';
+      // acho melhor deixar essa id mais descritiva. Ex: `boardIndex_${boardIndex}`
       div.id = boardIndex;
       
       board.fields.forEach( (field, fieldIndex) => {
@@ -55,9 +56,9 @@ function createRenderer(document) {
 
   return {
     gameArea,
+    subject,
     initialize,
     render,
-    subject,
   }
 }
 
