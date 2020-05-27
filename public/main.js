@@ -33,9 +33,3 @@ import createRenderer from './modules/renderer.js'
   });
 
   renderer.render(game.state);
-  
-
-
-
-
-
