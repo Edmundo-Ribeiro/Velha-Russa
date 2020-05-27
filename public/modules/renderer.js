@@ -1,4 +1,3 @@
-
 import createObserver from './observer.js';
 
 
@@ -6,19 +5,19 @@ import createObserver from './observer.js';
 function createRenderer(document) {
   const gameArea = document.getElementById('game')
   const subject = createObserver('screenRenderer');
-
+  
   subject.addTopics('click');
   
   //refatorar totalmente essa função!
   function render(gameState) {
-    const {currentBoardIndex, boards, hasToChooseBoard} = gameState;
+    const { currentBoardIndex, boards, hasToChooseBoard } = gameState;
     let button;
     let div;
     console.log('redering...');
     
-    boards.forEach( (board, boardIndex) => {
+    boards.forEach((board, boardIndex) => {
       div = document.getElementById(`${boardIndex}`);
-
+      
       boardIndex === currentBoardIndex 
         ? div.classList.add('currentBoard') 
         : div.classList.remove('currentBoard');
@@ -26,30 +25,30 @@ function createRenderer(document) {
       if (hasToChooseBoard && !board.conqueredBy) {
         div.classList.add('currentBoard');
       }
-
-      board.fields.forEach( (field, fieldIndex) => {
+      
+      board.fields.forEach((field, fieldIndex) => {
         button = document.getElementById(`${boardIndex}_${fieldIndex}`);
+
         if (field) {
-          const [player] = gameState.players.filter( ({ id }) => id === field);
+          const [player] = gameState.players.filter(({ id }) => id === field);
           button.innerText = player.symbol
-          button.classList.remove('avaliable');
+          button.classList.remove('available');
+          button.classList.add(player.id) // essa linha vai ser executada mais de uma vez?
         }
-        else if ((boardIndex === currentBoardIndex || hasToChooseBoard) && !board.conqueredBy ) {
-          button.classList.add('avaliable');
+        else if ((boardIndex === currentBoardIndex || hasToChooseBoard) && !board.conqueredBy) {
+          button.classList.add('available');
         }
         else {
-          button.classList.remove('avaliable');
+          button.classList.remove('available');
         }
       });
-
+      
       if (board.conqueredBy) {
         div.classList.add('conquered');
       }
-
     });
-
   }
-
+  
   function endedGame({player, result}) {
     if (result === 'won'){
       alert(`${player.symbol} won the game`);
@@ -58,40 +57,35 @@ function createRenderer(document) {
       alert(`${player.symbol} tied the game`);
     }
   }
-
-  function clicked(coordinates) {
-    console.log('You clicked on:', coordinates);
-    const position =`${coordinates.boardIndex}_${coordinates.fieldIndex}` 
-    subject.notify({topic: 'click', topicData: position })
-  }
-
+  
   function initialize(gameState) {
-    gameState.boards.forEach( (board, boardIndex) => {
+    gameState.boards.forEach((board, boardIndex) => {
       const div = document.createElement('div');
+      // é um field ou um board?
       div.classList = 'field';
+      // acho melhor deixar essa id mais descritiva. Ex: `boardIndex_${boardIndex}`
       div.id = boardIndex;
       
-      board.fields.forEach( (field, fieldIndex) => {
+      board.fields.forEach((field, fieldIndex) => {
         const button = document.createElement('button');
-        const coordinates = {boardIndex, fieldIndex}
-
+        
         button.id = `${boardIndex}_${fieldIndex}`
-        button.onclick = () => clicked(coordinates)
         button.innerText = ''
         
         div.append(button);
       });
-
+      
       gameArea.append(div);
     });
-
+    
     console.log('Choose a field in any of the boards!');
   }
-
+  
   return {
+    gameArea,
+    subject,
     initialize,
     render,
-    subject,
     endedGame
   }
 }
