@@ -21,6 +21,12 @@
       text-align: center;
     }
 
+    button {
+      border: none;
+      cursor: pointer;
+      outline: none;
+    }
+    
     #game {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -75,6 +81,19 @@
       transform: scale(1.04);
       background: #cecece;
     }
+    #game .conquered  button{
+      background:  #aaa ;
+      color: #333;
+      
+      border: 1px solid #000;
+    }
+
+    #game button.avaliable {
+      border: 1px solid blue;
+    }
+
+
+
   </style>
 
 </head>

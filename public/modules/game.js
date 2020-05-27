@@ -58,8 +58,11 @@ import createObserver from './observer.js';
 
 const createGame = () => {
   const state = {};
+  state.startedGame = false;
+  state.hasToChooseBoard = true;
+
   const subject = createObserver('game');
-  subject.addTopics('newMove', 'conqueredBoard');
+  subject.addTopics('newMove', 'conqueredBoard', 'hasToChooseBoard', 'endGame');
 
   const getInitializedBoard = () => {
     const fields = [];
@@ -89,33 +92,18 @@ const createGame = () => {
   }
 
   const makeMove = (position) => {
-    const [boardIndex, fieldIndex] = position.split('_').map(str => parseInt(str));
+    const {boardIndex, fieldIndex} = position;
     const board = state.boards[boardIndex];
     const player = state.currentPlayer;
 
     board.fields[fieldIndex] = player.id;
-
-    // const completedSequencesInFields = getCompletedSequences(board.fields);
-    // // console.log('conqueredBoard -->', completedSequencesInFields)
-    // if (completedSequencesInFields.length) {
-    //   board.conqueredBy = player.id;
-
-    //   const reshapedBoards = state.boards.map(board => board.conqueredBy)
-    //   const completedSequencesInBoards = getCompletedSequences(reshapedBoards)
-    //   if (completedSequencesInBoards.length) {
-    //     // finishGame()
-    //     console.log('wonGame -->', completedSequencesInBoards)
-    //   }
-    // }
-
-    // changePlayer();
     state.currentBoardIndex = fieldIndex;
 
     subject.notify({ topic: 'newMove', topicData: state })
   }
 
-  const isValidMove = ({playerId, position}) => {
-    const [boardIndex, fieldIndex] = position.split('_').map(str => parseInt(str));
+  const isValidMove = ({ playerId, position }) => {
+    const { boardIndex, fieldIndex } = position;
     const board = state.boards[boardIndex];
     
     // player
@@ -143,13 +131,13 @@ const createGame = () => {
   }
 
   const checkForCompletedSequencesAndGameWinner = (position) => {
-    const [boardIndex, _] = position.split('_').map(str => parseInt(str));
+    const { boardIndex, fieldIndex } = position;
     const board = state.boards[boardIndex];
     const player = state.currentPlayer;
 
     const completedSequencesInFields = getCompletedSequences(board.fields);
-    // console.log('conqueredBoard -->', completedSequencesInFields)
     if (completedSequencesInFields.length) {
+      console.log('completedSequencesInFields', completedSequencesInFields)
       board.conqueredBy = player.id;
 
       const reshapedBoards = state.boards.map(board => board.conqueredBy)
@@ -162,16 +150,43 @@ const createGame = () => {
     }
   }
 
-  const executeTurn = (position) => {
+  const executeTurn = (position_string) => {
     const playerId = state.currentPlayer.id; // de onde pegar o player ID???
-    
-    if (isValidMove({playerId, position})) {
+    const [boardIndex, fieldIndex] = position_string.split('_').map(str => parseInt(str));
+    const position = { boardIndex, fieldIndex };
+
+    // console.log(position, state.currentBoardIndex)
+
+    //se o jogo não comecou qualquer campo é valido para se tornar o campo atual
+    if (!state.startedGame) {
+      state.currentBoardIndex = boardIndex;
+      state.startedGame = true;
+    }
+
+    // se o player esta na situação em que deve escolher um campo pra jogar
+    // verifique se ele está escolhendo um campo disponivel
+    // se sim pode setar esse campo como o atual  
+    if (state.hasToChooseBoard) {
+      state.hasToChooseBoard = !!state.boards[boardIndex].conqueredBy;
+      state.currentBoardIndex = state.hasToChooseBoard ? null : boardIndex;
+    }
+
+    if (isValidMove({ playerId, position })) {
       makeMove(position); 
       // --{notify}
-      // não gosto de como essa função é usada. 
       // A chamada dessa função não deixa claro tudo o que vai ser feito
+      // checkThings() //-lembrar de checar se o proximo campo que vai ser jogado já foi conquisado/empatado. Nesse caso o currentFieldIndex vira nulo e o jogador pode escolher qualquer campo
       checkForCompletedSequencesAndGameWinner(position);
       changePlayer();
+
+      //colocar isso aqui na parte do checkThings eu acho
+      const futureBoard = state.boards[fieldIndex];
+      if (futureBoard.conqueredBy) {
+        state.hasToChooseBoard = true;
+        console.log('has to choose board:', state.hasToChooseBoard);
+        state.currentBoardIndex = null;
+        subject.notify({ topic: 'hasToChooseBoard', topicData: state });
+      }
     }
   }
 
@@ -238,7 +253,6 @@ const createGame = () => {
     setUp, 
     makeMove, 
     executeTurn,
-    selectRandomPlayer
   }
 }
 
