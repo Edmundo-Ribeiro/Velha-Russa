@@ -48,8 +48,8 @@ const createObserver = (name) => {
     name,
     addTopics,
     listTopics,
-    subscribe, 
-    unsubscribe, 
+    subscribe,
+    unsubscribe,
     notify
   };
 }

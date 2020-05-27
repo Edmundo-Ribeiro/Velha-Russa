@@ -1,7 +1,7 @@
 import createObserver from './observer.js';
 
 /**
- * @param {Document} document 
+ * @param {Document} document
  */
 function createClickInput(document) {
   const game = document.getElementById('game');
@@ -14,7 +14,7 @@ function createClickInput(document) {
 
     boards.forEach(board => {
       board.childNodes.forEach(button => {
-        button.onclick = () => 
+        button.onclick = () =>
           subject.notify({ topic: 'click', topicData: button.id })
       });
     });

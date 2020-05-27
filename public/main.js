@@ -35,7 +35,8 @@ game.subject.subscribe({
 game.subject.subscribe({
   topic: 'hasToChooseBoard',
   observerFunction: renderer.render
-}); 
+});
+
 game.subject.subscribe({
   topic: 'endGame',
   observerFunction: renderer.endedGame

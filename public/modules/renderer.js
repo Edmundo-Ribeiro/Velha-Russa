@@ -5,27 +5,27 @@ import createObserver from './observer.js';
 function createRenderer(document) {
   const gameArea = document.getElementById('game')
   const subject = createObserver('screenRenderer');
-  
+
   subject.addTopics('click');
-  
+
   //refatorar totalmente essa função!
   function render(gameState) {
     const { currentBoardIndex, boards, hasToChooseBoard } = gameState;
     let button;
     let div;
     console.log('redering...');
-    
+
     boards.forEach((board, boardIndex) => {
       div = document.getElementById(`${boardIndex}`);
-      
-      boardIndex === currentBoardIndex 
-        ? div.classList.add('currentBoard') 
+
+      boardIndex === currentBoardIndex
+        ? div.classList.add('currentBoard')
         : div.classList.remove('currentBoard');
-      
+
       if (hasToChooseBoard && !board.conqueredBy) {
         div.classList.add('currentBoard');
       }
-      
+
       board.fields.forEach((field, fieldIndex) => {
         button = document.getElementById(`${boardIndex}_${fieldIndex}`);
 
@@ -42,13 +42,13 @@ function createRenderer(document) {
           button.classList.remove('available');
         }
       });
-      
+
       if (board.conqueredBy) {
         div.classList.add('conquered');
       }
     });
   }
-  
+
   function endedGame({player, result}) {
     if (result === 'won'){
       alert(`${player.symbol} won the game`);
@@ -57,7 +57,7 @@ function createRenderer(document) {
       alert(`${player.symbol} tied the game`);
     }
   }
-  
+
   function initialize(gameState) {
     gameState.boards.forEach((board, boardIndex) => {
       const div = document.createElement('div');
@@ -65,22 +65,22 @@ function createRenderer(document) {
       div.classList = 'field';
       // acho melhor deixar essa id mais descritiva. Ex: `boardIndex_${boardIndex}`
       div.id = boardIndex;
-      
+
       board.fields.forEach((field, fieldIndex) => {
         const button = document.createElement('button');
-        
+
         button.id = `${boardIndex}_${fieldIndex}`
         button.innerText = ''
-        
+
         div.append(button);
       });
-      
+
       gameArea.append(div);
     });
-    
+
     console.log('Choose a field in any of the boards!');
   }
-  
+
   return {
     gameArea,
     subject,
