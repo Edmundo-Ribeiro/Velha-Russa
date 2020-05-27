@@ -66,7 +66,6 @@ function createRenderer(document) {
   }
 
   function initialize(gameState) {
-
     gameState.boards.forEach( (board, boardIndex) => {
       const div = document.createElement('div');
       div.classList = 'field';

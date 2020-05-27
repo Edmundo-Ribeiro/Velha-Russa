@@ -127,8 +127,8 @@ const createGame = () => {
       // implementar: notificar jogador que não é vez dele
       return false
     } 
+
     // se campo tá ativo, "é válido"
-   
     if (state.currentBoardIndex !== boardIndex) {
       return false;
     }
@@ -173,10 +173,9 @@ const createGame = () => {
 
       makeMove(position) //--{notify}
 
-
       //colocar isso aqui na parte do checkThings eu acho
-      const furuteBoard = state.boards[fieldIndex];
-      if (furuteBoard.conqueredBy) {
+      const futureBoard = state.boards[fieldIndex];
+      if (futureBoard.conqueredBy) {
         state.hasToChooseBoard = true;
         console.log('has to choose board:', state.hasToChooseBoard);
         state.currentBoardIndex = null;
@@ -186,8 +185,6 @@ const createGame = () => {
       // checkThings() //-lembrar de checar se o proximo campo que vai ser jogado já foi conquisado/empatado. Nesse caso o currentFieldIndex vira nulo e o jogador pode escolher qualquer campo
       // changePlayer() 
     }
-    
-   
   }
 
   const changePlayer = () => {
