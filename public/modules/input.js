@@ -15,15 +15,15 @@ function createClickInput(document) {
     boards.forEach(board => {
       board.childNodes.forEach(button => {
         button.onclick = () =>
-          subject.notify({ topic: 'click', topicData: button.id })
+          subject.notify({ topic: 'click', topicData: button.id });
       });
     });
-  }
+  };
 
   return {
     subject,
-    initialize
-  }
+    initialize,
+  };
 }
 
-export default createClickInput
+export default createClickInput;

@@ -68,37 +68,37 @@ const createGame = () => {
     const fields = [];
     const conqueredBy = null;
 
-    for (let i = 0; i < 9; i++){
+    for (let i = 0; i < 9; i += 1) {
       fields.push(null);
     }
 
-    return {fields, conqueredBy}
-  }
+    return { fields, conqueredBy };
+  };
 
   const setUp = () => {
     state.subscriptions = {};
     state.boards = [];
 
-    for (let i = 0; i < 9; i++){
+    for (let i = 0; i < 9; i += 1) {
       state.boards.push(getInitializedBoard());
     }
 
-    state.players = []
+    state.players = [];
     state.currentPlayer = null;
-  }
+  };
 
   const selectRandomPlayer = () => {
     return state.players[Math.round(Math.random())];
-  }
+  };
 
-  const makeMove = (position) => {
-    const {boardIndex, fieldIndex} = position;
+  const makeMove = position => {
+    const { boardIndex, fieldIndex } = position;
     const board = state.boards[boardIndex];
     const player = state.currentPlayer;
 
     board.fields[fieldIndex] = player.id;
     state.currentBoardIndex = fieldIndex;
-  }
+  };
 
   const isValidMove = ({ playerId, position }) => {
     const { boardIndex, fieldIndex } = position;
@@ -107,7 +107,7 @@ const createGame = () => {
     // player
     if (playerId !== state.currentPlayer.id) {
       // implementar: notificar jogador que não é vez dele
-      return false
+      return false;
     }
 
     // se campo tá ativo, "é válido"
@@ -126,37 +126,109 @@ const createGame = () => {
     }
 
     return true;
-  }
+  };
 
-  const checkForCompletedSequencesAndGameWinner = (position) => {
-    const { boardIndex, fieldIndex } = position;
+  const changePlayer = () => {
+    const currentPlayerID = state.currentPlayer.id;
+    [state.currentPlayer] = state.players.filter(
+      player => player.id !== currentPlayerID,
+    );
+  };
+
+  const setPlayer = (playerNumber, playerInfo) => {
+    state.players[playerNumber] = playerInfo;
+  };
+
+  const checkRows = array => {
+    for (let row = 0; row <= 6; row += 3)
+      if (
+        array[row] &&
+        array[row] === array[row + 1] &&
+        array[row] === array[row + 2]
+      )
+        return row / 3;
+    return -1;
+  };
+
+  const checkColumns = array => {
+    for (let column = 0; column < 3; column += 1)
+      if (
+        array[column] &&
+        array[column] === array[column + 3] &&
+        array[column] === array[column + 6]
+      )
+        return column;
+    return -1;
+  };
+
+  const checkDiagonals = array => {
+    const diagonals = [];
+
+    if (array[4] && array[0] === array[4] && array[4] === array[8])
+      diagonals.push(0);
+    if (array[4] && array[2] === array[4] && array[4] === array[6])
+      diagonals.push(1);
+
+    return diagonals;
+  };
+
+  const getCompletedSequences = checkableArray => {
+    let result = [];
+
+    const completedRow = checkRows(checkableArray);
+    if (completedRow !== -1) result.push({ type: 'row', index: completedRow });
+
+    const completedCol = checkColumns(checkableArray);
+    if (completedCol !== -1)
+      result.push({ type: 'column', index: completedCol });
+
+    // diferente pois pode acontecer de completar duas diagonais ao mesmo tempo
+    const completedDialgonals = checkDiagonals(checkableArray);
+    if (completedDialgonals.length)
+      result = result.concat(
+        completedDialgonals.map(diag => ({ type: 'dialgonal', index: diag })),
+      );
+
+    return result;
+  };
+
+  const checkForCompletedSequencesAndGameWinner = position => {
+    const { boardIndex } = position;
     const board = state.boards[boardIndex];
     const player = state.currentPlayer;
 
     const completedSequencesInFields = getCompletedSequences(board.fields);
+
     if (completedSequencesInFields.length) {
-      console.log('completedSequencesInFields', completedSequencesInFields)
+      console.log('completedSequencesInFields', completedSequencesInFields);
       board.conqueredBy = player.id;
 
-      const reshapedBoards = state.boards.map(board => board.conqueredBy)
-      const completedSequencesInBoards = getCompletedSequences(reshapedBoards)
-      console.log('completedSequencesInBoards', completedSequencesInBoards)
+      const reshapedBoards = state.boards.map(
+        boardToReshape => boardToReshape.conqueredBy,
+      );
+      const completedSequencesInBoards = getCompletedSequences(reshapedBoards);
+      console.log('completedSequencesInBoards', completedSequencesInBoards);
       if (completedSequencesInBoards.length) {
         // finishGame()
-        subject.notify({ topic: 'endGame', topicData: {player: state.currentPlayer, result: 'won'} });
-        console.log('wonGame -->', completedSequencesInBoards)
+        subject.notify({
+          topic: 'endGame',
+          topicData: { player: state.currentPlayer, result: 'won' },
+        });
+        console.log('wonGame -->', completedSequencesInBoards);
       }
     }
-  }
+  };
 
-  const executeTurn = (position_string) => {
+  const executeTurn = positionString => {
     const playerId = state.currentPlayer.id; // de onde pegar o player ID???
-    const [boardIndex, fieldIndex] = position_string.split('_').map(str => parseInt(str));
+    const [boardIndex, fieldIndex] = positionString
+      .split('_')
+      .map(str => parseInt(str, 10));
     const position = { boardIndex, fieldIndex };
 
     // console.log(position, state.currentBoardIndex)
 
-    //se o jogo não comecou qualquer campo é valido para se tornar o campo atual
+    // se o jogo não comecou qualquer campo é valido para se tornar o campo atual
     if (!state.startedGame) {
       state.currentBoardIndex = boardIndex;
       state.startedGame = true;
@@ -183,60 +255,7 @@ const createGame = () => {
       }
       subject.notify({ topic: 'newMove', topicData: state });
     }
-  }
-
-  const changePlayer = () => {
-    const currentPlayerID = state.currentPlayer.id;
-    [state.currentPlayer] = state.players.filter(player => player.id !== currentPlayerID);
-  }
-
-  const getCompletedSequences = (checkableArray) => {
-    let result = [];
-
-    const completedRow = checkRows(checkableArray);
-    if (completedRow != -1)
-      result.push({type: 'row', index: completedRow})
-
-    const completedCol = checkColumns(checkableArray);
-    if (completedCol != -1)
-      result.push({type: 'column', index: completedCol})
-
-    //diferente pois pode acontecer de completar duas diagonais ao mesmo tempo
-    const completedDialgonals = checkDiagonals(checkableArray);
-    if (completedDialgonals.length)
-      result = result.concat( completedDialgonals.map(diag => ({type: 'dialgonal', index: diag})) );
-
-    return result;
-  }
-
-  const setPlayer = (playerNumber, playerInfo) => {
-    state.players[playerNumber] = playerInfo;
-  }
-
-  const checkRows = (array) => {
-    for (let row = 0; row <= 6; row += 3)
-      if (array[row] && array[row] === array[row+1] && array[row] === array[row+2])
-        return row/3;
-    return -1;
-  }
-
-  const checkColumns = (array) => {
-    for (let column = 0; column < 3; column++)
-      if (array[column] && array[column] === array[column+3] && array[column] === array[column+6])
-        return column;
-    return -1;
-  }
-
-  const checkDiagonals = (array) => {
-    const diagonals = [];
-
-    if (array[4] && array[0] === array[4] && array[4] === array[8])
-      diagonals.push(0)
-    if (array[4] && array[2] === array[4] && array[4] === array[6])
-      diagonals.push(1)
-
-    return diagonals;
-  }
+  };
 
   return {
     state,
@@ -248,7 +267,7 @@ const createGame = () => {
     setUp,
     makeMove,
     executeTurn,
-  }
-}
+  };
+};
 
 export default createGame;
