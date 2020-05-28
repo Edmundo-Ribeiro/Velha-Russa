@@ -8,7 +8,7 @@ function createRenderer(document) {
 
   subject.addTopics('click');
 
-  const renderField = ({ id, content, isAvaliable, isConquered }) => {
+  const renderField = ({ id, content, isAvailable, isConquered }) => {
       const button = document.getElementById(id);
       const img = document.getElementById(`img_${id}`);
 
@@ -16,11 +16,11 @@ function createRenderer(document) {
         img.src = `../assets/${content}-${isConquered ? 'inactive' : 'active'}.svg`;
       }
 
-      if (isAvaliable ) {
-        button.classList.add('avaliable');
+      if (isAvailable ) {
+        button.classList.add('available');
       }
       else {
-        button.classList.remove('avaliable');
+        button.classList.remove('available');
       }
 
   }
@@ -38,7 +38,7 @@ function createRenderer(document) {
       renderField({
         content: player?.symbol,
         id: `${boardIndex}_${fieldIndex}`,
-        isAvaliable: (isCurrent || hasToChooseBoard) && !board.conqueredBy,
+        isAvailable: (isCurrent || hasToChooseBoard) && !board.conqueredBy,
         isConquered: !!board.conqueredBy,
       });
     });

@@ -31,7 +31,7 @@ const createObserver = (name) => {
       subscriptions[topic].push(observerFunction);
     }
     else {
-      console.error(`The topic { ${topic} } is not an avaliable topic of ${name}`);
+      console.error(`The topic { ${topic} } is not an available topic of ${name}`);
     }
   }
 
