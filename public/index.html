@@ -2,72 +2,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="main.css">
   <title>Velha Russa</title>
-
-  <style>
-    button {
-      border: none;
-      cursor: pointer;
-      outline: none;
-    }
-    #game {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      background: #f1f1f1;
-    }
-
-    #game .field {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      margin: 15px;
-      border-radius: 8px;
-    }
-
-    #game .field button {
-      transition: transform 0.3s;
-      border: 1px solid #999;
-      border-radius: 4px;
-      margin: 2px;
-      height: 40px;
-      color: #444;
-    }
-
-
-
-/* só pra ajudar ficar mais agradavel sla */
-    #game .field {
-      transition: transform 0.5s;
-    }
-    .currentBoard button.avaliable:hover {
-      transform: scale(1.06);
-      background: #aaa;
-    }
-    .currentBoard {
-      transform: scale(1.1);
-      border: 1px solid #b90d5d;
-    }
-
-    #game .conquered  button{
-      background:  #aaa ;
-      color: #333;
-      
-      border: 1px solid #000;
-    }
-
-    #game button.avaliable {
-      border: 1px solid blue;
-    }
-
-
-
-  </style>
-
 </head>
+
 <body>
-
-  <div id="game"></div>
-
-  <script type="module" src="./main.js"></script>
+  <div id="conatiner">
+    <div id="game-container">
+      <div id="game"></div>
+    </div>
+  </div>
   
+  <script type="module" src="./main.js"></script>
 </body>
 </html>
