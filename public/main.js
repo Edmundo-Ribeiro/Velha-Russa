@@ -1,8 +1,8 @@
 import createGame from './modules/game.js';
 import createRenderer from './modules/renderer.js'
 
-  const player0 = {id: 'david beckham', symbol: 'X'};
-  const player1 = {id: 'yudi beckham', symbol: 'Y'};
+  const player0 = {id: 'david beckham', symbol: 'circle'};
+  const player1 = {id: 'yudi beckham', symbol: 'x'};
 
   const game = createGame();
   const renderer = createRenderer(document);
@@ -23,10 +23,12 @@ import createRenderer from './modules/renderer.js'
       topic: 'newMove',
       observerFunction: renderer.render
   });
+
   game.subject.subscribe({
       topic: 'hasToChooseBoard',
       observerFunction: renderer.render
   }); 
+  
   game.subject.subscribe({
       topic: 'endGame',
       observerFunction: renderer.endedGame
