@@ -89,7 +89,7 @@ function createRenderer(document) {
 
         button.id = `${boardIndex}_${fieldIndex}`
         button.onclick = () => clicked(coordinates)
-        button.innerHTML= `<img id="img_${boardIndex}_${fieldIndex}" src="../assets/empity.svg"/>`;
+        button.innerHTML= `<img id="img_${boardIndex}_${fieldIndex}" src="../assets/empty.svg"/>`;
 
 
         div.append(button);
