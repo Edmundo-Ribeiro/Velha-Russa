@@ -2,8 +2,8 @@ import createGame from './modules/game.js';
 import createRenderer from './modules/renderer.js'
 import createClickInput from './modules/input.js'
 
-  const player0 = {id: 'david beckham', symbol: 'circle'};
-  const player1 = {id: 'yudi beckham', symbol: 'x'};
+const player0 = {id: 'david beckham', symbol: 'circle'};
+const player1 = {id: 'yudi beckham', symbol: 'x'};
 
 const game = createGame();
 const renderer = createRenderer(document);
@@ -17,13 +17,13 @@ game.state.currentPlayer =  game.selectRandomPlayer();// isso não deveria estar
 renderer.initialize(game.state);
 
 game.subject.subscribe({
-    topic: 'newMove',
-    observerFunction: renderer.render
+  topic: 'newMove',
+  observerFunction: renderer.render
 });
 
 game.subject.subscribe({
-    topic: 'endGame',
-    observerFunction: renderer.endedGame
+  topic: 'endGame',
+  observerFunction: renderer.endedGame
 });
 
 renderer.render(game.state);

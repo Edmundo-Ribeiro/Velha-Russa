@@ -60,11 +60,11 @@ button {
   transition: border-color 0.5s ease-in;
 }
 
- #game .board button {
-   cursor: default;
-   height: 100%;
-   width: 100%;
-   border-radius: 4.1%;
+#game .board button {
+  cursor: default;
+  height: 100%;
+  width: 100%;
+  border-radius: 4.1%;
   transition: transform 0.3s;
   z-index: 10;
 
@@ -99,6 +99,3 @@ button {
   border: 0.5px solid #636363;
   border-radius: initial;
 }
-
-
-

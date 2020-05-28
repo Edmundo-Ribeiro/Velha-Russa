@@ -9,28 +9,28 @@ function createRenderer(document) {
   subject.addTopics('click');
 
   const renderField = ({ id, content, isAvailable, isConquered }) => {
-      const button = document.getElementById(id);
-      const img = document.getElementById(`img_${id}`);
+    const button = document.getElementById(id);
+    const img = document.getElementById(`img_${id}`);
 
-      if (content) {
-        img.src = `../assets/${content}-${isConquered ? 'inactive' : 'active'}.svg`;
-      }
+    if (content) {
+      img.src = `../assets/${content}-${isConquered ? 'inactive' : 'active'}.svg`;
+    }
 
-      if (isAvailable ) {
-        button.classList.add('available');
-      }
-      else {
-        button.classList.remove('available');
-      }
-
+    if (isAvailable ) {
+      button.classList.add('available');
+    }
+    else {
+      button.classList.remove('available');
+    }
   }
+
   const renderBoard = ({board, boardIndex, players, isCurrent, hasToChooseBoard }) => {
     const div = document.getElementById(`${boardIndex}`);
     let player;
 
     isCurrent || hasToChooseBoard
-      ? div.classList.add('currentBoard')
-      : div.classList.remove('currentBoard');
+    ? div.classList.add('currentBoard')
+    : div.classList.remove('currentBoard');
 
     board.fields.forEach( (field, fieldIndex) => {
       [player] = players.filter( ({ id }) => id === field);
@@ -53,9 +53,9 @@ function createRenderer(document) {
       else if (player.symbol === 'circle'){
         div.style.border = '0.5px solid #005AFF';
       }
-
     }
   }
+
   const render = (gameState) => {
     const {boards, players, currentBoardIndex, hasToChooseBoard} = gameState;
 
