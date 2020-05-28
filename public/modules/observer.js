@@ -27,10 +27,11 @@ const createObserver = (name) => {
 
   const subscribe = ({topic, observerFunction}) => {
     if (isTopic(topic)) {
+      console.log(`The function {${observerFunction.name}} has been subscribed to the topic {${topic}} of {${name}}`);
       subscriptions[topic].push(observerFunction);
     }
     else {
-      console.error(`The topic { ${topic} } is not an avaliable topic of ${name}`)
+      console.error(`The topic { ${topic} } is not an avaliable topic of ${name}`);
     }
   }
 
@@ -41,6 +42,7 @@ const createObserver = (name) => {
 
   const notify = ({topic, topicData}) => {
     const functionsList = subscriptions[topic];
+    console.log(`The topic {${topic}} of {${name}} is notifying the data: {${topicData}}`);
     functionsList.forEach(callFunction => callFunction(topicData));
   }
 
@@ -48,8 +50,8 @@ const createObserver = (name) => {
     name,
     addTopics,
     listTopics,
-    subscribe, 
-    unsubscribe, 
+    subscribe,
+    unsubscribe,
     notify
   };
 }
