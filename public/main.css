@@ -44,7 +44,7 @@ button {
   grid-template-columns: repeat(3, 1fr);
   column-gap: 8%;
   row-gap: 8%;
-  
+
   border-radius: 3%;
 }
 
@@ -54,31 +54,31 @@ button {
   column-gap: 12%;
   row-gap: 12%;
   border-radius: 2.1%;
-  
+
   z-index: 5;
   transition: transform 0.5s;
   transition: border-color 0.5s ease-in;
 }
 
- #game .board button {
-   cursor: default;
-   height: 100%;
-   width: 100%;
-   border-radius: 4.1%; 
+#game .board button {
+  cursor: default;
+  height: 100%;
+  width: 100%;
+  border-radius: 4.1%;
   transition: transform 0.3s;
   z-index: 10;
 
   background: linear-gradient(117.79deg, #13171B 0%, #050607 97.34%);
   box-shadow: -5px -5px 9px #151A1E, 5px 5px 9px #020303;
-} 
+}
 
-#game .board button.avaliable {
+#game .board button.available {
   cursor: pointer;
   transform: scale(1.1);
-} 
+}
 
-#game .board button.avaliable:hover {
-  transform: scale(1.1); 
+#game .board button.available:hover {
+  transform: scale(1.1);
 }
 
 #game .board.conquered button {
@@ -99,6 +99,3 @@ button {
   border: 0.5px solid #636363;
   border-radius: initial;
 }
-
-
-

@@ -7,7 +7,7 @@ function createRenderer(document) {
 
   subject.addTopics('click');
 
-  const renderField = ({ id, content, isAvaliable, isConquered }) => {
+  const renderField = ({ id, content, isAvailable, isConquered }) => {
     const button = document.getElementById(id);
     const img = document.getElementById(`img_${id}`);
 
@@ -17,10 +17,10 @@ function createRenderer(document) {
       }.svg`;
     }
 
-    if (isAvaliable) {
-      button.classList.add('avaliable');
+    if (isAvailable) {
+      button.classList.add('available');
     } else {
-      button.classList.remove('avaliable');
+      button.classList.remove('available');
     }
   };
   const renderBoard = ({
@@ -45,7 +45,7 @@ function createRenderer(document) {
       renderField({
         content: player ? player.symbol : undefined,
         id: `${boardIndex}_${fieldIndex}`,
-        isAvaliable: (isCurrent || hasToChooseBoard) && !board.conqueredBy,
+        isAvailable: (isCurrent || hasToChooseBoard) && !board.conqueredBy,
         isConquered: !!board.conqueredBy,
       });
     });
@@ -75,15 +75,15 @@ function createRenderer(document) {
     );
   };
 
-  function endedGame({ player, result }) {
+  const endedGame = ({ player, result }) => {
     if (result === 'won') {
       alert(`${player.symbol} won the game`);
     } else {
       alert(`${player.symbol} tied the game`);
     }
-  }
+  };
 
-  function initialize(gameState) {
+  const initialize = gameState => {
     gameState.boards.forEach((board, boardIndex) => {
       const div = document.createElement('div');
       div.classList = 'board';
@@ -95,7 +95,7 @@ function createRenderer(document) {
 
         button.id = `${boardIndex}_${fieldIndex}`;
         // button.onclick = () => clicked(coordinates);
-        button.innerHTML = `<img id="img_${boardIndex}_${fieldIndex}" src="../assets/empity.svg"/>`;
+        button.innerHTML = `<img id="img_${boardIndex}_${fieldIndex}" src="../assets/empty.svg"/>`;
 
         div.append(button);
       });
@@ -103,7 +103,7 @@ function createRenderer(document) {
       gameArea.append(div);
     });
     console.log('Choose a field in any of the boards!');
-  }
+  };
 
   return {
     gameArea,

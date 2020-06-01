@@ -1,58 +1,58 @@
 /**
- * interface State {
- *  boards: Board[9];
- *  players: Player[2];
- *  currentPlayer: Player;
- *  currentBoard: Board;
- * }
- *
- * interface Board {
- *  fields: Array(9);
- *  conqueredBy: string;
- * }
- *
- * interface Player {
- *  id: string;
- *  symbol: string;
- * }
- *
- * interface Move {
- *  player: Player;
- *  position: string;
- * }
- *
- *
- * state: {
- *  boards: [
- *    {fields: [9], conqured},
- *    {fields: [9], conqured},
- *    {fields: [9], conqured},
- *    {fields: [9], conqured},
- *    {fields: [9], conqured},
- *    {fields: [9], conqured},
- *    {fields: [9], conqured},
- *    {fields: [9], conqured},
- *    {fields: [9], conqured},
- *  ],
- *  players: [
- *    {id, symbol},
- *    {id, symbol},
- *  ],
- *  currentPlayer: {id, symbol},
- *  currentBoardIndex: number,
- *  subscriptions: {
- *    eventName: Array[]
- *  },
- * }
- *
- */
+interface State {
+  boards: Board[9];
+  players: Player[2];
+  currentPlayer: Player;
+  currentBoard: Board;
+}
 
-/**
- * Topics / topicData
- * 'newMove' / 'coordenada, simbolo'
- * 'conquererBoard' / 'boardIndex, type, simbolo'
- * 'won' / 'type, simbolo'
- */
+interface Board {
+  fields: Array(9);
+  conqueredBy: string;
+}
+
+interface Player {
+  id: string;
+  symbol: string;
+}
+
+interface Move {
+  player: Player;
+  position: string;
+}
+
+
+state: {
+  boards: [
+    {fields: [9], conqured},
+    {fields: [9], conqured},
+    {fields: [9], conqured},
+    {fields: [9], conqured},
+    {fields: [9], conqured},
+    {fields: [9], conqured},
+    {fields: [9], conqured},
+    {fields: [9], conqured},
+    {fields: [9], conqured},
+  ],
+  players: [
+    {id, symbol},
+    {id, symbol},
+  ],
+  currentPlayer: {id, symbol},
+  currentBoardIndex: number,
+  subscriptions: {
+    eventName: Array[]
+  },
+}
+
+*/
+
+/*
+Topics / topicData
+'newMove' / 'coordenada, simbolo'
+'conquererBoard' / 'boardIndex, type, simbolo'
+'won' / 'type, simbolo'
+*/
 
 import createObserver from './observer.js';
 
@@ -91,6 +91,17 @@ const createGame = () => {
     return state.players[Math.round(Math.random())];
   };
 
+  const changePlayer = () => {
+    const currentPlayerID = state.currentPlayer.id;
+    [state.currentPlayer] = state.players.filter(
+      player => player.id !== currentPlayerID,
+    );
+  };
+
+  const setPlayer = (playerNumber, playerInfo) => {
+    state.players[playerNumber] = playerInfo;
+  };
+
   const makeMove = position => {
     const { boardIndex, fieldIndex } = position;
     const board = state.boards[boardIndex];
@@ -126,17 +137,6 @@ const createGame = () => {
     }
 
     return true;
-  };
-
-  const changePlayer = () => {
-    const currentPlayerID = state.currentPlayer.id;
-    [state.currentPlayer] = state.players.filter(
-      player => player.id !== currentPlayerID,
-    );
-  };
-
-  const setPlayer = (playerNumber, playerInfo) => {
-    state.players[playerNumber] = playerInfo;
   };
 
   const checkRows = array => {
