@@ -1,12 +1,6 @@
-const path = require('path')
-const express = require('express')
+const socketio = require('socket.io');
+const express = require('express');
+const path = require('path');
+const server = require('./app');
 
-const app = express()
-
-app.use(express.static(path.join(__dirname, '..', 'public')))
-
-app.get('/', (req, res) => {
-  return res.json({ ok: true })
-})
-
-app.listen(3000)
+server.listen(3000);

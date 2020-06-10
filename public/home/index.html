@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+  <style>
+    .container {
+      display: block;
+    }
+
+    a {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0 auto;
+      display: block;
+      width: 300px;
+      text-decoration: none;
+      background: #eee;
+      color: #000;
+      padding: 16px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/game">Jogar com um amigo</a>
+  </div>
+
+  <script src="/socket.io/socket.io.js" ></script>
+  <script>
+    const socket = io()
+  </script>
+</body>
+</html>

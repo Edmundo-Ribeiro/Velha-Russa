@@ -1,6 +1,6 @@
-import createGame from './modules/game.js';
-import createRenderer from './modules/renderer.js';
-import createClickInput from './modules/input.js';
+import createGame from '../modules/game.js';
+import createRenderer from '../modules/renderer.js';
+import createClickInput from '../modules/input.js';
 
 const player0 = { id: 'david beckham', symbol: 'circle' };
 const player1 = { id: 'yudi beckham', symbol: 'x' };

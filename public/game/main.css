@@ -5,6 +5,10 @@
   outline: 0;
 }
 
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
 button {
   padding: 0;
   border: none;
@@ -13,7 +17,7 @@ button {
   box-sizing: border-box;
 }
 
-#conatiner {
+#container {
   height: 100vh;
   width: 100vw;
 
@@ -21,6 +25,19 @@ button {
   align-items: center;
   justify-content: center;
   background: linear-gradient(144.87deg, #13171B 0.52%, #040506 100%);
+}
+
+#home {
+  padding: 16px;
+  margin-right: 16px;
+  border-radius: 4px;
+  background: #ddd;
+  background: linear-gradient(144.87deg, #13171B 0.52%, #040506 100%);
+  box-shadow: -5px -5px 10px #151A1E, 5px 5px 10px #050607;
+
+  color: #d5d5d5;
+  text-decoration: none;
+  font-weight: bold;
 }
 
 #game-container {
