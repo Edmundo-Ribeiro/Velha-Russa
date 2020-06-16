@@ -1,5 +1,5 @@
 const express = require('express');
-const io = require('socket.io');
+const socketio = require('socket.io');
 const path = require('path');
 const http = require('http');
 
@@ -18,17 +18,23 @@ class App {
   }
 
   initSocket() {
-    this.io = io(this.server);
+    this.io = socketio(this.server);
 
     this.io.on('connection', socket => {
       // const { user_id } = socket.handshake.query;
-      const user_id = socket.id;
-      this.connectedUsers[user_id] = socket.id;
+      const userId = socket.id;
+      this.connectedUsers[userId] = socket.id;
 
       console.log(this.connectedUsers);
 
       socket.on('disconnect', () => {
-        delete this.connectedUsers[user_id];
+        // quando usar diferentes namespaces
+        // https://stackoverflow.com/questions/26400595/socket-io-how-do-i-remove-a-namespace
+        delete this.connectedUsers[userId];
+      });
+
+      socket.on('new-game', data => {
+        console.log('data:', data);
       });
     });
   }
