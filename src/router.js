@@ -3,14 +3,9 @@ const { Router } = require('express');
 
 const router = new Router();
 
-router.get('/', (req, res) => {
-  return res.sendFile(
-    path.join(__dirname, '..', 'public', 'home', 'index.html'),
-  );
-});
-
 router.get('/game/:roomId', (req, res) => {
-  // const { roomId } = req.params;
+  const { roomId } = req.params;
+  // req.io.socket[roomId];
 
   return res.sendFile(
     path.join(__dirname, '..', 'public', 'game', 'index.html'),

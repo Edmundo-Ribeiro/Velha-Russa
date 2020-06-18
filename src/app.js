@@ -21,20 +21,28 @@ class App {
     this.io = socketio(this.server);
 
     this.io.on('connection', socket => {
-      // const { user_id } = socket.handshake.query;
       const userId = socket.id;
       this.connectedUsers[userId] = socket.id;
 
-      console.log(this.connectedUsers);
+      // console.log(this.connectedUsers);
 
       socket.on('disconnect', () => {
-        // quando usar diferentes namespaces
+        // quando usar diferentes namespaces: segunda resposta
         // https://stackoverflow.com/questions/26400595/socket-io-how-do-i-remove-a-namespace
         delete this.connectedUsers[userId];
       });
 
-      socket.on('new-game', data => {
-        console.log('data:', data);
+      socket.on('join-game', data => {
+        socket.join(data.targetSocketId);
+        const { targetSocketId } = data;
+        // console.log('joined game', data, socket.id);
+
+        this.io.to(targetSocketId).emit('joined-game', {
+          player: {
+            id: socket.id,
+            name: new Date().getTime(),
+          },
+        });
       });
     });
   }

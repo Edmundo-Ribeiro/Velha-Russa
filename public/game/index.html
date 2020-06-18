@@ -3,24 +3,62 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../game/main.css">
+  <link rel="stylesheet" href="../game/control-panel.css">
   <title>Velha Russa</title>
 </head>
-
 <body>
   <div id="container">
-    <div class="button-container">
-      <a href="/home" id="home">
-        <!-- <button id="home"> -->
-          Home
-        <!-- </button> -->
-      </a>
-    </div>
-
     <div id="game-container">
       <div id="game"></div>
     </div>
+
+    <div id="control-panel">
+      <div>
+        <input id="socket-id" type="text" placeholder="ID da Sala" >
+        <button id="join-game">Entrar</button>
+      </div>
+      <br>
+      <button id="create-game">Novo Jogo</button>
+    </div>
+    <p id="socket-id-placeholder"></p>
   </div>
 
   <script type="module" src="../game/main.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io()
+
+    const socketIdPlaceholder = document.getElementById('socket-id-placeholder')
+
+    socket.on('connect', () => {
+      const joinGameButton = document.getElementById('join-game')
+      const createGameButton = document.getElementById('create-game')
+      const controlPanel = document.getElementById('control-panel')
+
+      joinGameButton.onclick = () => {
+        const socketIdInput = document.getElementById('socket-id')
+        const socketId = socketIdInput.value
+
+        socket.emit('join-game', { targetSocketId: socketId })
+        controlPanel.style.display = 'none'
+        // mostrar o jogador conectado
+      }
+
+      createGameButton.onclick = () => {
+        // display none no #control-panel
+        socketIdPlaceholder.innerText = socket.id
+        controlPanel.style.display = 'none'
+
+        // disponibilizar o socket ID para a área de transferência
+        // exibir algum tipo de msg p/ o usuário
+
+        socket.on('joined-game', (player) => {
+          // mostrar o jogador que se conectou
+          console.log(player)
+        })
+      }
+    })
+
+  </script>
 </body>
 </html>

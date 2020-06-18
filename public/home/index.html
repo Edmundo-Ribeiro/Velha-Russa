@@ -37,9 +37,13 @@
     playLink.onclick = (event) => {
       event.preventDefault()
       socket.emit('new-game', { id: socket.id })
-      console.log('hye');
-      axios.post('/oi').then(response => console.log(response.data))
-      // window.location.href=""
+
+      socket.on('join-game', data => {
+        console.log('go to another page:', data);
+        // localStorage.setItem('host', true)
+        // axios.post('/oi').then(response => console.log(response.data))
+        window.location.href= `http://localhost:3000/game/${data.id}`
+      })
     }
   </script>
 </body>
