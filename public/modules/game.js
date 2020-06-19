@@ -60,9 +60,19 @@ const createGame = () => {
   const state = {};
   state.startedGame = false;
   state.hasToChooseBoard = true;
+  state.ended = false;
+  state.gameWinner = null;
 
   const subject = createObserver('game');
-  subject.addTopics('newMove', 'conqueredBoard', 'hasToChooseBoard', 'endGame');
+  subject.addTopics(
+    'startedGame',
+    'newMove',
+    'conqueredBoard',
+    'tiedBoard',
+    'hasToChooseBoard',
+    'endGame',
+    'changedTurn',
+  );
 
   const getInitializedBoard = () => {
     const fields = [];
@@ -76,7 +86,6 @@ const createGame = () => {
   };
 
   const setUp = () => {
-    state.subscriptions = {};
     state.boards = [];
 
     for (let i = 0; i < 9; i += 1) {
@@ -96,10 +105,22 @@ const createGame = () => {
     [state.currentPlayer] = state.players.filter(
       player => player.id !== currentPlayerID,
     );
+    subject.notify({ topic: 'changedTurn', topicData: state.currentPlayer });
   };
 
-  const setPlayer = (playerNumber, playerInfo) => {
-    state.players[playerNumber] = playerInfo;
+  const setPlayer = playerInfo => {
+    const duplicatedInfoPlayer = state.players.find(
+      player =>
+        playerInfo.id === player.id || playerInfo.symbol === player.symbol,
+    );
+
+    if (state.players.length < 2 && !duplicatedInfoPlayer) {
+      state.players.push(playerInfo);
+    } else {
+      console.error(
+        'Is not possible to add more than two players or repeat info of another player',
+      ); // transform console.error into throw
+    }
   };
 
   const makeMove = position => {
@@ -115,6 +136,10 @@ const createGame = () => {
     const { boardIndex, fieldIndex } = position;
     const board = state.boards[boardIndex];
 
+    // se o jogo acabou, não pode mais jogar
+    if (state.ended) {
+      return false;
+    }
     // player
     if (playerId !== state.currentPlayer.id) {
       // implementar: notificar jogador que não é vez dele
@@ -144,7 +169,8 @@ const createGame = () => {
       if (
         array[row] &&
         array[row] === array[row + 1] &&
-        array[row] === array[row + 2]
+        array[row] === array[row + 2] &&
+        array[row] !== 'tie'
       )
         return row / 3;
     return -1;
@@ -155,7 +181,8 @@ const createGame = () => {
       if (
         array[column] &&
         array[column] === array[column + 3] &&
-        array[column] === array[column + 6]
+        array[column] === array[column + 6] &&
+        array[column] !== 'tie'
       )
         return column;
     return -1;
@@ -164,12 +191,32 @@ const createGame = () => {
   const checkDiagonals = array => {
     const diagonals = [];
 
-    if (array[4] && array[0] === array[4] && array[4] === array[8])
+    if (
+      array[4] &&
+      array[0] === array[4] &&
+      array[4] === array[8] &&
+      array[4] !== 'tie'
+    )
       diagonals.push(0);
-    if (array[4] && array[2] === array[4] && array[4] === array[6])
+    if (
+      array[4] &&
+      array[2] === array[4] &&
+      array[4] === array[6] &&
+      array[4] !== 'tie'
+    )
       diagonals.push(1);
 
     return diagonals;
+  };
+
+  const checkTie = ({ completedSequencesResult, checkableArray }) => {
+    if (completedSequencesResult.length) {
+      return false;
+    }
+
+    const remainingNullElement = checkableArray.includes(null);
+
+    return !remainingNullElement;
   };
 
   const getCompletedSequences = checkableArray => {
@@ -183,39 +230,136 @@ const createGame = () => {
       result.push({ type: 'column', index: completedCol });
 
     // diferente pois pode acontecer de completar duas diagonais ao mesmo tempo
-    const completedDialgonals = checkDiagonals(checkableArray);
-    if (completedDialgonals.length)
+    const completedDiagonals = checkDiagonals(checkableArray);
+    if (completedDiagonals.length)
       result = result.concat(
-        completedDialgonals.map(diag => ({ type: 'dialgonal', index: diag })),
+        completedDiagonals.map(diag => ({ type: 'diagonal', index: diag })),
       );
 
     return result;
   };
 
-  const checkForCompletedSequencesAndGameWinner = position => {
-    const { boardIndex } = position;
-    const board = state.boards[boardIndex];
+  const endGame = ({ player, result }) => {
+    state.ended = true;
+    subject.notify({
+      topic: 'endGame',
+      topicData: { player, result },
+    });
+  };
+
+  const checkForBoardConquerOrTie = boardIndex => {
     const player = state.currentPlayer;
+    const board = state.boards[boardIndex];
 
-    const completedSequencesInFields = getCompletedSequences(board.fields);
+    const completedSequences = getCompletedSequences(board.fields);
+    if (completedSequences.length) {
+      console.log('completedSequencesInFields', completedSequences);
 
-    if (completedSequencesInFields.length) {
-      console.log('completedSequencesInFields', completedSequencesInFields);
       board.conqueredBy = player.id;
+      subject.notify({ topic: 'conqueredBoard', topicData: boardIndex });
+      return 'conqueredBoard';
+    }
+    const tie = checkTie({
+      completedSequencesResult: completedSequences,
+      checkableArray: board.fields,
+    });
 
-      const reshapedBoards = state.boards.map(
-        boardToReshape => boardToReshape.conqueredBy,
-      );
-      const completedSequencesInBoards = getCompletedSequences(reshapedBoards);
-      console.log('completedSequencesInBoards', completedSequencesInBoards);
-      if (completedSequencesInBoards.length) {
-        // finishGame()
-        subject.notify({
-          topic: 'endGame',
-          topicData: { player: state.currentPlayer, result: 'won' },
-        });
-        console.log('wonGame -->', completedSequencesInBoards);
-      }
+    if (tie) {
+      board.conqueredBy = 'tie';
+      subject.notify({ topic: 'tiedBoard', topicData: boardIndex });
+      return 'tiedBoard';
+    }
+
+    return 'nothing';
+  };
+
+  const checkForGameWinnerOrTie = () => {
+    const reshapedBoards = state.boards.map(
+      boardToReshape => boardToReshape.conqueredBy,
+    );
+
+    const completedSequences = getCompletedSequences(reshapedBoards);
+
+    if (completedSequences.length) {
+      console.log('completedSequencesInBoards', completedSequences);
+
+      state.gameWinner = state.currentPlayer.id;
+      endGame({
+        player: state.gameWinner,
+        result: 'won',
+      });
+
+      return 'won';
+    }
+
+    const gameTie = checkTie({
+      completedSequencesResult: completedSequences,
+      checkableArray: reshapedBoards,
+    });
+
+    if (gameTie) {
+      endGame({
+        player: state.currentPlayer,
+        result: 'tied',
+      });
+      return 'tied';
+    }
+
+    return 'nothing';
+  };
+
+  const checkIfWillHaveToChooseBoard = futureBoardIndex => {
+    const futureBoard = state.boards[futureBoardIndex];
+    if (futureBoard.conqueredBy) {
+      state.hasToChooseBoard = true;
+      state.currentBoardIndex = null;
+      subject.notify({ topic: 'hasToChooseBoard', topicData: true });
+    }
+  };
+  //   const checkForGameWinnerOrTie = boardIndex => {
+  //   const { boardIndex } = position;
+  //   const board = state.boards[boardIndex];
+  //   const player = state.currentPlayer;
+
+  //   const completedSequencesInFields = getCompletedSequences(board.fields);
+
+  //   if (completedSequencesInFields.length) {
+  //     console.log('completedSequencesInFields', completedSequencesInFields);
+  //     board.conqueredBy = player.id;
+  //     subject.notify({ topic: 'conqueredBoard', topicData: boardIndex });
+
+  //     const reshapedBoards = state.boards.map(
+  //       boardToReshape => boardToReshape.conqueredBy,
+  //     );
+  //     const completedSequencesInBoards = getCompletedSequences(reshapedBoards);
+  //     console.log('completedSequencesInBoards', completedSequencesInBoards);
+  //     if (completedSequencesInBoards.length) {
+  //       endGame({
+  //         player: state.currentPlayer,
+  //         result: 'won',
+  //       });
+
+  //       console.log('wonGame -->', completedSequencesInBoards);
+  //     }
+  //   }
+  // };
+
+  const dealWithMovementImplications = position => {
+    const { boardIndex, fieldIndex } = position;
+
+    const whatHappenedToTheBoard = checkForBoardConquerOrTie(boardIndex);
+
+    // if nothing happened to the board
+    if (whatHappenedToTheBoard === 'nothing') {
+      changePlayer(); // change the current player
+      checkIfWillHaveToChooseBoard(fieldIndex); // check if the player will have to choose a board
+      return; // continue
+    }
+
+    const whatHappenedToTheGame = checkForGameWinnerOrTie();
+    if (whatHappenedToTheGame === 'nothing') {
+      changePlayer();
+      checkIfWillHaveToChooseBoard(fieldIndex);
     }
   };
 
@@ -226,34 +370,25 @@ const createGame = () => {
       .map(str => parseInt(str, 10));
     const position = { boardIndex, fieldIndex };
 
-    // console.log(position, state.currentBoardIndex)
-
-    // se o jogo não comecou qualquer campo é valido para se tornar o campo atual
+    // if the game did not started, any board is available to turn into the current board
     if (!state.startedGame) {
       state.currentBoardIndex = boardIndex;
       state.startedGame = true;
+      subject.notify({ topic: 'startedGame' });
     }
 
-    // se o player esta na situação em que deve escolher um campo pra jogar
-    // verifique se ele está escolhendo um campo disponivel
-    // se sim pode setar esse campo como o atual
+    // if the player is in the situation of "has to choose a board"
     if (state.hasToChooseBoard) {
-      state.hasToChooseBoard = !!state.boards[boardIndex].conqueredBy;
-      state.currentBoardIndex = state.hasToChooseBoard ? null : boardIndex;
+      state.hasToChooseBoard = !!state.boards[boardIndex].conqueredBy; // verify if the board that he is choosing is available
+      state.currentBoardIndex = state.hasToChooseBoard ? null : boardIndex; // if it is available, it can be set as the current board
     }
 
+    // if the move informed is valid
     if (isValidMove({ playerId, position })) {
-      makeMove(position);
-      checkForCompletedSequencesAndGameWinner(position);
-      changePlayer();
+      makeMove(position); // it can be made
 
-      const futureBoard = state.boards[fieldIndex];
-      if (futureBoard.conqueredBy) {
-        state.hasToChooseBoard = true;
-        state.currentBoardIndex = null;
-        // subject.notify({ topic: 'hasToChooseBoard', topicData: state });
-      }
-      subject.notify({ topic: 'newMove', topicData: state });
+      dealWithMovementImplications(position); // the implications of that movement are dealt
+      subject.notify({ topic: 'newMove', topicData: state }); // notify that a new movement was made
     }
   };
 

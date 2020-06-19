@@ -13,8 +13,8 @@ describe('Possible game states', () => {
     game = createGame();
 
     game.setUp();
-    game.setPlayer(0, player0);
-    game.setPlayer(1, player1);
+    game.setPlayer(player0);
+    game.setPlayer(player1);
     game.state.currentPlayer = player0;
   });
 
@@ -141,7 +141,7 @@ describe('Possible game states', () => {
 
     expect(game.state.ended).toBe(true);
     expect(mockFunction).toHaveBeenCalled();
-    expect(mockFunction).toHaveReturnedWith('tie');
+    expect(mockFunction).toHaveReturnedWith('tied');
   });
 
   it('Should be able to enter in a "has to choose board" situation and notify it', () => {
