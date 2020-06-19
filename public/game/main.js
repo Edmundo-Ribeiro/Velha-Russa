@@ -10,8 +10,8 @@ const renderer = createRenderer(document);
 const clickInput = createClickInput(document);
 
 game.setUp();
-game.setPlayer(0, player0); // quem que deveria fazer isso???
-game.setPlayer(1, player1);
+game.setPlayer(player0); // quem que deveria fazer isso???
+game.setPlayer(player1);
 game.state.currentPlayer = game.selectRandomPlayer(); // isso não deveria estar numa função de iniciar a partida?
 
 renderer.initialize(game.state);
