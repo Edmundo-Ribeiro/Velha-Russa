@@ -44,7 +44,8 @@ const createObserver = name => {
   const notify = ({ topic, topicData }) => {
     const functionsList = subscriptions[topic];
     console.log(
-      `The topic {${topic}} of {${name}} is notifying the data: {${topicData}}`,
+      `The topic {${topic}} of {${name}} is notifying the data:`,
+      topicData,
     );
     functionsList.forEach(callFunction => callFunction(topicData));
   };
