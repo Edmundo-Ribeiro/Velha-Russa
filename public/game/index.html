@@ -12,15 +12,19 @@
       <div id="game"></div>
     </div>
 
-    <div id="control-panel">
-      <div>
-        <input id="socket-id" type="text" placeholder="ID da Sala" >
-        <button id="join-game">Entrar</button>
+    <div id="panel">
+      <div id="control-panel">
+        <button id="create-game">Criar Jogo</button>
+        <div>
+          <input id="socket-id" type="text" placeholder="ID da Sala" >
+          <button id="join-game">Entrar</button>
+        </div>
       </div>
-      <br>
-      <button id="create-game">Novo Jogo</button>
+      <div id="connection-result">
+        <p id="this-client-socket-id"></p>
+        <p id="adversary-client-socket-id"></p>
+      </div>
     </div>
-    <p id="socket-id-placeholder"></p>
   </div>
 
   <script type="module" src="../game/main.js"></script>
@@ -28,33 +32,33 @@
   <script>
     const socket = io()
 
-    const socketIdPlaceholder = document.getElementById('socket-id-placeholder')
-
     socket.on('connect', () => {
       const joinGameButton = document.getElementById('join-game')
       const createGameButton = document.getElementById('create-game')
       const controlPanel = document.getElementById('control-panel')
+      const thisClientSocketId = document.getElementById('this-client-socket-id')
+      const adversaryClientSocketId = document.getElementById('adversary-client-socket-id')
 
       joinGameButton.onclick = () => {
         const socketIdInput = document.getElementById('socket-id')
-        const socketId = socketIdInput.value
 
-        socket.emit('join-game', { targetSocketId: socketId })
+        socket.emit('join-game', { targetSocketId: socketIdInput.value })
         controlPanel.style.display = 'none'
-        // mostrar o jogador conectado
+
+        socket.on('join-game-success', ({ targetSocketId }) => {
+          thisClientSocketId.innerText = `Você é ${socket.id}`
+          adversaryClientSocketId.innerText = `Adversário: ${targetSocketId}`
+        })
       }
 
       createGameButton.onclick = () => {
-        // display none no #control-panel
-        socketIdPlaceholder.innerText = socket.id
+        thisClientSocketId.innerText = `Você é ${socket.id}`
+        adversaryClientSocketId.innerText = `Adversário: aguarde...`
         controlPanel.style.display = 'none'
 
-        // disponibilizar o socket ID para a área de transferência
-        // exibir algum tipo de msg p/ o usuário
-
-        socket.on('joined-game', (player) => {
-          // mostrar o jogador que se conectou
-          console.log(player)
+        // precisa socket.emit('create-game', {data: 'data'}) ? Talvez p/ criar um jogo no servidor
+        socket.on('joined-game', ({ player }) => {
+          adversaryClientSocketId.innerText = `Adversário: ${player.id}`
         })
       }
     })

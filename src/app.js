@@ -24,8 +24,6 @@ class App {
       const userId = socket.id;
       this.connectedUsers[userId] = socket.id;
 
-      // console.log(this.connectedUsers);
-
       socket.on('disconnect', () => {
         // quando usar diferentes namespaces: segunda resposta
         // https://stackoverflow.com/questions/26400595/socket-io-how-do-i-remove-a-namespace
@@ -43,6 +41,8 @@ class App {
             name: new Date().getTime(),
           },
         });
+
+        this.io.to(socket.id).emit('join-game-success', { targetSocketId });
       });
     });
   }

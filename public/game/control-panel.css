@@ -1,8 +1,60 @@
-#control-panel {
-  border: 2px solid red;
-  margin-top: 16px;;
+#panel {
+  margin-right: 10px;
 }
 
-#socket-id-placeholder {
+#control-panel {
+  /* border: 2px solid red; */
+  background: transparent;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+
+  width: 300px;
+}
+
+button#create-game {
+  height: 42px;
+  padding: 12px;
+  background: linear-gradient(117.79deg, #13171B 0%, #050607 97.34%);
+  box-shadow: -5px -5px 9px #151A1E, 5px 5px 9px #020303;
+  font-weight: bold;
   color: #fff;
+
+  margin-bottom: 16px;
+}
+
+#control-panel div {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid #fff2;
+}
+
+#control-panel input[id="socket-id"] {
+  background: linear-gradient(117.79deg, #13171B 0%, #050607 97.34%);
+  box-shadow: -5px -5px 9px #151A1E inset , 5px 5px 9px #020303 inset;
+  padding: 12px;
+  height: 42px;
+  border: 0;
+  color: #fff;
+}
+
+button#join-game {
+  height: 42px;
+  padding: 12px;
+  background: linear-gradient(117.79deg, #13171B 0%, #050607 97.34%);
+  box-shadow: -5px -5px 9px #151A1E, 5px 5px 9px #020303;
+  font-weight: bold;
+  color: #fff;
+
+  margin-bottom: 12px;
+}
+
+div#connection-result {
+  margin-top: 16px;
+  color: #fff;
+}
+
+div#connection-result p {
+  margin-bottom: 8px;
 }
