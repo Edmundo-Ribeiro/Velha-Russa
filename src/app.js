@@ -30,19 +30,32 @@ class App {
         delete this.connectedUsers[userId];
       });
 
-      socket.on('join-game', data => {
-        socket.join(data.targetSocketId);
-        const { targetSocketId } = data;
-        // console.log('joined game', data, socket.id);
+      // PLAYER 0 criando o jogo
+      socket.on('create-game', ({ player0 }) => {
+        console.log(`${player0.id}|${player0.name} criou um jogo`);
 
-        this.io.to(targetSocketId).emit('joined-game', {
-          player: {
-            id: socket.id,
-            name: new Date().getTime(),
-          },
+        // socket.on('join-game', () => {
+        // console.log('o request de entrar chegou no criador!!!');
+        socket.on('join-game-success', ({ player1 }) => {
+          console.log(`jogador1:${player1.id} entrou no jogo do jogador0`);
+          this.io.to(player1.id).emit('join-game-success', { player0 });
         });
+        // });
+      });
 
-        this.io.to(socket.id).emit('join-game-success', { targetSocketId });
+      // PLAYER 1 entrando em um jogo
+      socket.on('join-game', ({ targetSocketId, player1 }) => {
+        socket.join(targetSocketId);
+
+        console.log(
+          `${player1.id}|${player1.name} quer entrar\ncontactando player0...\n`,
+        );
+
+        this.io.to(targetSocketId).emit('join-game', { player1 });
+
+        socket.on('joined-game', player0 => {
+          this.io.to(socket.id).emit('join-game-success', player1);
+        });
       });
     });
   }

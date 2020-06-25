@@ -27,42 +27,7 @@
     </div>
   </div>
 
-  <script type="module" src="../game/main.js"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io()
-
-    socket.on('connect', () => {
-      const joinGameButton = document.getElementById('join-game')
-      const createGameButton = document.getElementById('create-game')
-      const controlPanel = document.getElementById('control-panel')
-      const thisClientSocketId = document.getElementById('this-client-socket-id')
-      const adversaryClientSocketId = document.getElementById('adversary-client-socket-id')
-
-      joinGameButton.onclick = () => {
-        const socketIdInput = document.getElementById('socket-id')
-
-        socket.emit('join-game', { targetSocketId: socketIdInput.value })
-        controlPanel.style.display = 'none'
-
-        socket.on('join-game-success', ({ targetSocketId }) => {
-          thisClientSocketId.innerText = `Você é ${socket.id}`
-          adversaryClientSocketId.innerText = `Adversário: ${targetSocketId}`
-        })
-      }
-
-      createGameButton.onclick = () => {
-        thisClientSocketId.innerText = `Você é ${socket.id}`
-        adversaryClientSocketId.innerText = `Adversário: aguarde...`
-        controlPanel.style.display = 'none'
-
-        // precisa socket.emit('create-game', {data: 'data'}) ? Talvez p/ criar um jogo no servidor
-        socket.on('joined-game', ({ player }) => {
-          adversaryClientSocketId.innerText = `Adversário: ${player.id}`
-        })
-      }
-    })
-
-  </script>
+  <script type="module" src="../game/game-and-connection.js"></script>
 </body>
 </html>
